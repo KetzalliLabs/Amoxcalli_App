@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "973466374407",
+    "project_id": "amoxcalli-10c58",
+    "storage_bucket": "amoxcalli-10c58.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973466374407:android:e8b939a4690c639a6eb5a2",
+        "android_client_info": {
+          "package_name": "com.req.software.amoxcalli_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeMXTydKAvv2JfQIaESmVVet0Q4PfOUKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
