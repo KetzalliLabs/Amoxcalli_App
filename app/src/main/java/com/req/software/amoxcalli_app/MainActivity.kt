@@ -4,14 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.req.software.amoxcalli_app.ui.screens.HomeScreen
+import com.req.software.amoxcalli_app.ui.screens.LoginScreen
 import com.req.software.amoxcalli_app.ui.theme.Amoxcalli_AppTheme
+import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +17,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Amoxcalli_AppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AmoxcalliApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello Amoxcalli",
-        modifier = modifier
-    )
-}
+fun AmoxcalliApp() {
+    val authViewModel: AuthViewModel = viewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Amoxcalli_AppTheme {
-        Greeting("Android")
+    if (currentUser != null) {
+        HomeScreen(
+            authViewModel = authViewModel
+        )
+    } else {
+        LoginScreen(
+            authViewModel = authViewModel
+        )
     }
 }
