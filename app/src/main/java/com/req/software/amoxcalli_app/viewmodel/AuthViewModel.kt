@@ -25,7 +25,9 @@ class AuthViewModel : ViewModel() {
     val currentUser: StateFlow<FirebaseUser?> = _currentUser
 
     init {
-        _currentUser.value = auth.currentUser
+        // No cargar automáticamente auth.currentUser para forzar login manual cada vez
+        // Si deseas permitir sesiones persistentes, descomenta la siguiente línea:
+        // _currentUser.value = auth.currentUser
     }
 
     fun getGoogleSignInClient(activity: Activity, webClientId: String): GoogleSignInClient {
@@ -35,6 +37,27 @@ class AuthViewModel : ViewModel() {
             .build()
 
         return GoogleSignIn.getClient(activity, gso)
+    }
+
+    fun signOut(googleSignInClient: GoogleSignInClient?) {
+        viewModelScope.launch {
+            try {
+                // Primero actualizar el estado para evitar recargas
+                _currentUser.value = null
+                _authState.value = AuthState.Idle
+
+                // Cerrar sesión de Google Sign-In para forzar selección de cuenta en próximo login
+                googleSignInClient?.signOut()?.await()
+
+                // Cerrar sesión de Firebase
+                auth.signOut()
+            } catch (_: Exception) {
+                // Aún así mantener la sesión cerrada
+                _currentUser.value = null
+                _authState.value = AuthState.Idle
+                auth.signOut()
+            }
+        }
     }
 
     fun signInWithGoogle(account: GoogleSignInAccount) {
@@ -49,12 +72,6 @@ class AuthViewModel : ViewModel() {
                 _authState.value = AuthState.Error(e.message ?: "Error desconocido")
             }
         }
-    }
-
-    fun signOut() {
-        auth.signOut()
-        _currentUser.value = null
-        _authState.value = AuthState.Idle
     }
 }
 

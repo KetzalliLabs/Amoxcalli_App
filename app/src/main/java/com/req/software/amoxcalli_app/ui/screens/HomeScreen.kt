@@ -1,10 +1,12 @@
 package com.req.software.amoxcalli_app.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -17,7 +19,9 @@ import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 fun HomeScreen(
     authViewModel: AuthViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
+    val webClientId = "973466374407-rvc7bk7ifbg2im0256b9307lojsubd7d.apps.googleusercontent.com"
 
     Scaffold(
         topBar = {
@@ -25,7 +29,11 @@ fun HomeScreen(
                 title = { Text("Amoxcalli") },
                 actions = {
                     TextButton(onClick = {
-                        authViewModel.signOut()
+                        val signInClient = authViewModel.getGoogleSignInClient(
+                            context as Activity,
+                            webClientId
+                        )
+                        authViewModel.signOut(signInClient)
                     }) {
                         Text("Cerrar sesión")
                     }
