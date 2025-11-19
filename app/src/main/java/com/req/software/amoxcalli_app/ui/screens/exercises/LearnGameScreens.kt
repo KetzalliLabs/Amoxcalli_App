@@ -1,4 +1,4 @@
-package com.req.software.amoxcalli_app.ui.screens.learn
+package com.req.software.amoxcalli_app.ui.screens.exercises
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

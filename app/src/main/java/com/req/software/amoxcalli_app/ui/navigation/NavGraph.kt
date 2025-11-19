@@ -19,10 +19,10 @@ import com.req.software.amoxcalli_app.ui.components.navigation.BottomNavBar
 import com.req.software.amoxcalli_app.ui.navigation.Screen.Quiz
 import com.req.software.amoxcalli_app.ui.screens.home.HomeScreen
 import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
-import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameScreen
-import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameUiState
-import com.req.software.amoxcalli_app.ui.screens.learn.LearnOptionUi
-import com.req.software.amoxcalli_app.ui.screens.learn.LearnQuestionType
+import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameScreen
+import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameUiState
+import com.req.software.amoxcalli_app.ui.screens.exercises.LearnOptionUi
+import com.req.software.amoxcalli_app.ui.screens.exercises.LearnQuestionType
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
 
