@@ -32,12 +32,12 @@ fun BottomNavBar(
             label = "Home"
         ),
         BottomNavItem(
-            screen = Screen.Topics,
+            screen = Screen.Quiz,
             iconRes = R.drawable.ic_topics,
             label = "Temas"
         ),
         BottomNavItem(
-            screen = Screen.Quiz,
+            screen = Screen.Topics,
             iconRes = R.drawable.ic_search,
             label = "Buscar"
         ),

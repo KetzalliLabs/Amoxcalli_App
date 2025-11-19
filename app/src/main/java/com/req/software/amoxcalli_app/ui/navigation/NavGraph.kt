@@ -16,12 +16,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.req.software.amoxcalli_app.ui.components.navigation.BottomNavBar
+import com.req.software.amoxcalli_app.ui.navigation.Screen.Quiz
 import com.req.software.amoxcalli_app.ui.screens.home.HomeScreen
 import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameScreen
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameUiState
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnOptionUi
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnQuestionType
+import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
+import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -55,7 +58,7 @@ fun AppNavigation() {
             if (currentRoute in listOf(
                     Screen.Home.route,
                     Screen.Topics.route,
-                    Screen.Quiz.route,
+                    Quiz.route,
                     Screen.Profile.route
                 )
             ) {
@@ -96,7 +99,7 @@ fun AppNavigation() {
                         homeViewModel.navigateToTopic(topic)
                     },
                     onQuizClick = {
-                        navController.navigate(Screen.Quiz.route)
+                        navController.navigate(Quiz.route)
                     },
                     onPracticeClick = {
                         navController.navigate(Screen.Practice.route)
@@ -105,16 +108,9 @@ fun AppNavigation() {
             }
 
             // -------------------------------------------------------------
-            // TOPICS (por implementar)
-            // -------------------------------------------------------------
-            composable(Screen.Topics.route) {
-                // TODO: Implementar TopicsScreen
-            }
-
-            // -------------------------------------------------------------
             // QUIZ – Juego Aprender con tipo ALEATORIO en cada Confirmar
             // -------------------------------------------------------------
-            composable(Screen.Quiz.route) {
+            composable(Quiz.route) {
                 // Estado completo de la pregunta actual
                 var currentQuestion by remember {
                     mutableStateOf(generateRandomQuestion())
@@ -167,6 +163,28 @@ fun AppNavigation() {
                     },
                     onCloseClick = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+
+            // -------------------------------------------------------------
+            // LIBRARY (por implementar)
+            // -------------------------------------------------------------
+            composable(Screen.Topics.route) {
+                // TODO: Implementar TopicsScreen
+                val sampleWordList = listOf(
+                    LibraryWordUi("1", "Carro", true),
+                    LibraryWordUi("2", "Avión"),
+                    LibraryWordUi("3", "Camión"),
+                    LibraryWordUi("4", "Bicicleta"),
+                    LibraryWordUi("5", "Tren"),
+                    LibraryWordUi("6", "Moto", true),
+                )
+                LibraryScreen(
+                    words = sampleWordList,
+                    onWordClick = { wordId ->
+                        navController.navigate("wordDetail/$wordId")
                     }
                 )
             }
