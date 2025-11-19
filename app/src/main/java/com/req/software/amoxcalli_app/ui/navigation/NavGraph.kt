@@ -190,7 +190,7 @@ fun AppNavigation() {
             }
 
             // -------------------------------------------------------------
-            // PROFILE (por implementar)
+            // PROFILE (por implementar) pene
             // -------------------------------------------------------------
             composable(Screen.Profile.route) {
                 // TODO: Implementar ProfileScreen
