@@ -3,6 +3,23 @@ package com.req.software.amoxcalli_app.data.dto
 import com.google.gson.annotations.SerializedName
 
 /**
+ * Request body for login with Google ID token
+ */
+data class LoginRequest(
+    @SerializedName("id_token")
+    val idToken: String,
+
+    @SerializedName("email")
+    val email: String?,
+
+    @SerializedName("display_name")
+    val displayName: String?,
+
+    @SerializedName("avatar_url")
+    val avatarUrl: String?
+)
+
+/**
  * Request body for user registration/sync
  */
 data class UserRegistrationRequest(
