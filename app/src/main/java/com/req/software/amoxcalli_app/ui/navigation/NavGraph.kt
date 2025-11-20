@@ -23,15 +23,18 @@ import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameScreen
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameUiState
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnOptionUi
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnQuestionType
+import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
+import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen // ✅ AGREGAR ESTE IMPORT
 
 /**
  * Sealed class para definir las rutas de navegación
  */
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Topics : Screen("topics")
+    object Learn : Screen("topics")
+    object Topics : Screen("learn")
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
@@ -57,6 +60,7 @@ fun AppNavigation() {
             // Solo mostrar el bottom nav en las pantallas principales
             if (currentRoute in listOf(
                     Screen.Home.route,
+                    Screen.Learn.route,
                     Screen.Topics.route,
                     Quiz.route,
                     Screen.Profile.route
@@ -106,6 +110,14 @@ fun AppNavigation() {
                     }
                 )
             }
+
+            // -------------------------------------------------------------
+            // LEARN – Pantalla de aprendizaje por temas
+            // -------------------------------------------------------------
+            composable(Screen.Learn.route) {
+                LearnScreen()
+            }
+
 
             // -------------------------------------------------------------
             // QUIZ – Juego Aprender con tipo ALEATORIO en cada Confirmar
@@ -190,7 +202,7 @@ fun AppNavigation() {
             }
 
             // -------------------------------------------------------------
-            // PROFILE (por implementar) pene
+            // PROFILE (por implementar)
             // -------------------------------------------------------------
             composable(Screen.Profile.route) {
                 // TODO: Implementar ProfileScreen
