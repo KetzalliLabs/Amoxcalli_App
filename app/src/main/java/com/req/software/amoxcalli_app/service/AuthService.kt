@@ -14,12 +14,12 @@ import retrofit2.http.POST
  */
 interface AuthService {
     /**
-     * Login with Google ID token
-     * @param request Contains the Google ID token and user info
+     * Login with Firebase UID
+     * @param request Contains the Firebase UID and user info
      * @return User data from backend
      */
     @POST(ApiConfig.Endpoints.LOGIN)
-    suspend fun login(@Body request: LoginRequest): ApiResponse<UserResponse>
+    suspend fun login(@Body request: UserRegistrationRequest): ApiResponse<UserResponse>
 
     /**
      * Register/sync user with backend

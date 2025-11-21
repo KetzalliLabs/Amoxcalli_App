@@ -64,8 +64,8 @@ class AuthViewModel : ViewModel() {
 
     /**
      * Sign in with Google
-     * 1. Authenticate with Firebase to get firebase_uid
-     * 2. Send firebase_uid to backend API to sync user data
+     * 1. Authenticate with Firebase using Google credentials
+     * 2. Send Google ID token to backend API (handles both new and existing users)
      */
     fun signInWithGoogle(account: GoogleSignInAccount) {
         viewModelScope.launch {
@@ -89,16 +89,16 @@ class AuthViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Step 2: Send firebase_uid to backend API
-                val registrationRequest = UserRegistrationRequest(
+                // Step 2: Send Firebase UID to backend API for login/registration
+                val loginRequest = UserRegistrationRequest(
                     firebaseUid = firebaseUser.uid,
                     email = account.email,
                     displayName = account.displayName,
                     avatarUrl = account.photoUrl?.toString()
                 )
 
-                // Call backend API to register/sync user
-                val response = authService.register(registrationRequest)
+                // Call backend API to login (handles both new and existing users)
+                val response = authService.login(loginRequest)
 
                 if (response.success && response.data != null) {
                     _currentUser.value = response.data
