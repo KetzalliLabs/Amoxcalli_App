@@ -97,7 +97,7 @@ fun LoginScreen(
                         .shadow(8.dp, CircleShape),
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
                     AsyncImage(
@@ -194,8 +194,8 @@ fun LoginScreen(
                         .shadow(4.dp, RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ),
                     enabled = authState !is AuthState.Loading
                 ) {
@@ -207,15 +207,20 @@ fun LoginScreen(
                         Surface(
                             modifier = Modifier.size(24.dp),
                             shape = CircleShape,
-                            color = Color.Transparent
+                            color = MaterialTheme.colorScheme.primary
                         ) {
-                            Text(
-                                text = "G",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                textAlign = TextAlign.Center
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "G",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
