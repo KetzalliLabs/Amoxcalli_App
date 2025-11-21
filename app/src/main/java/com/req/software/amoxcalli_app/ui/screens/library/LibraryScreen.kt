@@ -104,7 +104,7 @@ fun LibraryScreen(
                     // Use the existing LibraryWordButton component
                     LibraryWordButton(
                         text = word.name,
-                        isFavorite = false, // favorites removed; keep false to avoid changing button signature
+                        isFavorite = false, // favorites removed;
                         onClick = { onWordClick(word.id) },
                         //modifier = Modifier.fillMaxWidth()
                     )

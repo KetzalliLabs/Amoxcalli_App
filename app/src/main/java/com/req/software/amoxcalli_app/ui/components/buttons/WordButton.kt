@@ -30,8 +30,8 @@ fun LibraryWordButton(
         color = Color(0xFF4A90E2),          // Color de fondo primario (ejemplo: azul)
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f) // Mantiene la forma cuadrada
-            .clickable { onClick() }
+            .height(80.dp)
+            //.clickable { onClick() }
     ) {
         Box(
             modifier = Modifier.padding(8.dp),
