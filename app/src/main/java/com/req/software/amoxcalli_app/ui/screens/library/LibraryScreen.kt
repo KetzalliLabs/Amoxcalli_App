@@ -4,7 +4,11 @@ package com.req.software.amoxcalli_app.ui.screens.library
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.req.software.amoxcalli_app.domain.model.UserStats
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
+import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
+import com.req.software.amoxcalli_app.ui.components.searchbars.SearchBar
 
 data class LibraryWordUi(
     val id: String,
@@ -28,10 +34,16 @@ fun LibraryScreen(
     userStats: UserStats,
     words: List<LibraryWordUi>,
     onWordClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var searchText by remember { mutableStateOf("") }
-    var selectedTab by remember { mutableStateOf(0) } // 0 = nombre, 1 = categoría
+    val filteredWords = if (searchText.isBlank()) {
+        words // Si no hay texto, muestra todas las palabras.
+    } else {
+        words.filter { word ->
+            word.name.contains(searchText, ignoreCase = true)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -71,50 +83,30 @@ fun LibraryScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Tabs (kept from previous)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Reuse a simple text button here to keep layout small (replace with LibraryTabButton if available)
-                androidx.compose.material3.Button(
-                    onClick = { selectedTab = 0 },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Buscar por nombre") }
-                Spacer(modifier = Modifier.width(8.dp))
-                androidx.compose.material3.Button(
-                    onClick = { selectedTab = 1 },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Buscar por categoría") }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Search bar placeholder (keep existing SearchBar if available)
-            androidx.compose.material3.TextField(
+            // Search bar placeholder
+            SearchBar(
+                placeholder = "Buscar seña...",
                 value = searchText,
-                onValueChange = { searchText = it },
-                placeholder = { Text(if (selectedTab == 0) "Buscar nombre" else "Buscar categoría") },
-                modifier = Modifier.fillMaxWidth()
+                onValueChange = { searchText = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Category-like list using PrimaryButton
-            LazyColumn(
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                val filtered = words.filter { it.name.contains(searchText, ignoreCase = true) }
-                items(filtered) { word ->
-                    PrimaryButton(
+                items(filteredWords) { word ->
+                    // Use the existing LibraryWordButton component
+                    LibraryWordButton(
                         text = word.name,
+                        isFavorite = false, // favorites removed; keep false to avoid changing button signature
                         onClick = { onWordClick(word.id) },
-                        backgroundColor = if (word.isFavorite) Color(0xFFFFC107) else Color(0xFF4CAF50),
-                        enablePulse = false,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
+                        //modifier = Modifier.fillMaxWidth()
                     )
                 }
             }

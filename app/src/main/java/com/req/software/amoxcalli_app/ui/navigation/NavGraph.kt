@@ -27,6 +27,7 @@ import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
 import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen // ✅ AGREGAR ESTE IMPORT
+import com.req.software.amoxcalli_app.ui.screens.library.parseCategoryJson
 import com.req.software.amoxcalli_app.ui.screens.library.parseLibraryJson
 
 /**
@@ -188,7 +189,7 @@ fun AppNavigation() {
                 val userStats by homeViewModel.userStats.collectAsState()
 
                 // Example JSON (replace with network / asset loading in real app)
-                val sampleJson = """
+                val sampleWordsJson = """
     {
     "success": true,
     "count": 93,
@@ -941,7 +942,133 @@ fun AppNavigation() {
 }
     """.trimIndent()
 
-                val parsedWords = parseLibraryJson(sampleJson)
+                val sampleCategoriesJson = """
+    {
+        "success": true,
+        "count": 23,
+        "data": [
+            {
+                "id": "fb59bac7-7119-4c93-837e-f12469bf699b",
+                "name": "Abecedario",
+                "icon_url": "https://img.icons8.com/?size=100&id=MXyR2CZikptq&format=png&color=000000"
+            },
+            {
+                "id": "1097af2e-515f-41b5-8503-3deaaa30514a",
+                "name": "Animales",
+                "icon_url": "https://img.icons8.com/?size=100&id=ZuzscBIny4qF&format=png&color=000000"
+            },
+            {
+                "id": "e40bdeee-3573-4eee-8a19-87008dc9b43d",
+                "name": "Colores",
+                "icon_url": "https://img.icons8.com/?size=100&id=859&format=png&color=000000"
+            },
+            {
+                "id": "e0bc8a70-b791-4826-ae17-2963d7382c4e",
+                "name": "Comida",
+                "icon_url": "https://img.icons8.com/?size=100&id=7613&format=png&color=000000"
+            },
+            {
+                "id": "056557c6-bb23-4004-89b6-8e8997ce8827",
+                "name": "Cuerpo",
+                "icon_url": "https://img.icons8.com/?size=100&id=60865&format=png&color=000000"
+            },
+            {
+                "id": "2706287e-c01f-4e7c-8bfb-d53ac6118a78",
+                "name": "Dias de la Semana",
+                "icon_url": "https://img.icons8.com/?size=100&id=4NXrrgLpkEuk&format=png&color=000000"
+            },
+            {
+                "id": "8c1e45d7-4452-4eed-9fa6-d392e937b010",
+                "name": "Frutas",
+                "icon_url": "https://img.icons8.com/?size=100&id=GWislv927j8I&format=png&color=000000"
+            },
+            {
+                "id": "28e0ad9f-08b1-48ad-b75b-d334b907bafe",
+                "name": "Gramática",
+                "icon_url": "https://img.icons8.com/?size=100&id=OzvsjhXE24ws&format=png&color=000000"
+            },
+            {
+                "id": "7653c2bd-6d52-4a1b-b37d-b4b1b35ca2f4",
+                "name": "Hogar",
+                "icon_url": "https://img.icons8.com/?size=100&id=4823&format=png&color=000000"
+            },
+            {
+                "id": "cd1c5d70-1255-4822-b105-0e112aed6e61",
+                "name": "Lugares",
+                "icon_url": "https://img.icons8.com/?size=100&id=undefined&format=png&color=000000"
+            },
+            {
+                "id": "2bcd5119-b7b7-4f15-b719-fd7f623f48e5",
+                "name": "Meses del Año",
+                "icon_url": "https://img.icons8.com/?size=100&id=39mJ0wyUp2YO&format=png&color=000000"
+            },
+            {
+                "id": "317e163b-f52c-480a-9f2b-e3147fca2b1e",
+                "name": "Números",
+                "icon_url": "https://img.icons8.com/?size=100&id=107428&format=png&color=000000"
+            },
+            {
+                "id": "9c8f8d66-079b-4e02-b320-31b6b31fd261",
+                "name": "Oficios",
+                "icon_url": "https://img.icons8.com/?size=100&id=tJJWhcXCnpyE&format=png&color=000000"
+            },
+            {
+                "id": "f4d4eed0-982d-4f58-ad3e-c47598683f18",
+                "name": "Personas",
+                "icon_url": "https://img.icons8.com/?size=100&id=undefined&format=png&color=000000"
+            },
+            {
+                "id": "8c067d73-d20f-4dce-8d41-c4ebe3b21bdb",
+                "name": "Preguntas",
+                "icon_url": "https://img.icons8.com/?size=100&id=4501&format=png&color=000000"
+            },
+            {
+                "id": "de332021-c7ff-4475-b8c8-0273b3715ac1",
+                "name": "Pronombres",
+                "icon_url": "https://img.icons8.com/?size=100&id=UzivRUTTbNKR&format=png&color=000000"
+            },
+            {
+                "id": "401ff86a-e9cf-4a52-9585-5ebafee86eab",
+                "name": "Ropa",
+                "icon_url": "https://img.icons8.com/?size=100&id=24899&format=png&color=000000"
+            },
+            {
+                "id": "d7366df0-1718-491c-b4ee-62603a167eae",
+                "name": "Saludos",
+                "icon_url": "https://img.icons8.com/?size=100&id=25573&format=png&color=000000"
+            },
+            {
+                "id": "a3cf1fa9-aa92-4e2a-bfb9-eb2e9f22e12b",
+                "name": "Tiempo",
+                "icon_url": "https://img.icons8.com/?size=100&id=19100&format=png&color=000000"
+            },
+            {
+                "id": "68c4b33b-9732-4cbf-83a4-de7800c345d2",
+                "name": "Transporte",
+                "icon_url": "https://img.icons8.com/?size=100&id=undefined&format=png&color=000000"
+            },
+            {
+                "id": "7be74295-e290-46e8-ad5f-f67bebdf6340",
+                "name": "Verbos comunes",
+                "icon_url": "https://img.icons8.com/?size=100&id=ro6d8kA3GXyL&format=png&color=000000"
+            },
+            {
+                "id": "189059e5-a153-4d12-b1f0-a7cc99b00c67",
+                "name": "Verbos Narrativos",
+                "icon_url": "https://img.icons8.com/?size=100&id=undefined&format=png&color=000000"
+            },
+            {
+                "id": "f4e7ff0d-57c0-4474-ba0c-ec77bd16cc24",
+                "name": "Verduras",
+                "icon_url": "https://img.icons8.com/?size=100&id=11307&format=png&color=000000"
+            }
+        ]
+    }
+    """.trimIndent()
+
+
+                val parsedWords = parseLibraryJson(sampleWordsJson)
+
 
                 LibraryScreen(
                     userStats = userStats,
