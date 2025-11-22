@@ -1,0 +1,115 @@
+package com.req.software.amoxcalli_app.ui.components.navigation
+
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.req.software.amoxcalli_app.R
+import com.req.software.amoxcalli_app.ui.navigation.Screen
+
+data class BottomNavItem(
+    val screen: Screen,
+    val iconRes: Int,
+    val label: String
+)
+
+@Composable
+fun BottomNavBar(
+    currentRoute: String,
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val items = listOf(
+        BottomNavItem(
+            screen = Screen.Home,
+            iconRes = R.drawable.ic_home,
+            label = "Home"
+        ),
+        BottomNavItem(
+            screen = Screen.Learn, // ✅ AGREGAR Learn
+            iconRes = R.drawable.ic_topics, // ✅ Necesitas crear este ícono
+            label = "Aprender"
+        ),
+//        BottomNavItem(
+//            screen = Screen.Quiz,
+//            iconRes = R.drawable.ic_topics,
+//            label = "Temas"
+//        ),
+        BottomNavItem(
+            screen = Screen.Topics,
+            iconRes = R.drawable.ic_search,
+            label = "Buscar"
+        ),
+        BottomNavItem(
+            screen = Screen.Profile,
+            iconRes = R.drawable.ic_profile,
+            label = "Perfil"
+        )
+    )
+
+    NavigationBar(
+        modifier = modifier
+        .height(75.dp),
+        containerColor = Color.White,
+        contentColor = Color.Gray,          // ← Color de íconos
+        tonalElevation = 0.dp,              // ← Sin sombra
+        windowInsets = WindowInsets(0.dp)  // ← ESTO ELIMINA EL FONDO GRIS
+
+    ) {
+        items.forEach { item ->
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        painter = painterResource(id = item.iconRes),
+                        contentDescription = item.label,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                selected = currentRoute == item.screen.route,
+                onClick = { onNavigate(item.screen.route) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color(0xFF4CAF50),
+                    selectedTextColor = Color(0xFF4CAF50),
+                    unselectedIconColor = Color.Gray,
+                    unselectedTextColor = Color.Gray,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
+
+// ============= PREVIEW =============
+@Preview(showBackground = true)
+@Composable
+private fun BottomNavBarPreview() {
+    MaterialTheme {
+        BottomNavBar(
+            currentRoute = Screen.Home.route,
+            onNavigate = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun BottomNavBarTopicsSelectedPreview() {
+    MaterialTheme {
+        BottomNavBar(
+            currentRoute = Screen.Topics.route,
+            onNavigate = {}
+        )
+    }
+}
