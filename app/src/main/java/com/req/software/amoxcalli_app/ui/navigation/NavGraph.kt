@@ -195,9 +195,8 @@ fun AppNavigation(
                 )
             }
 
-
             // -------------------------------------------------------------
-            // LIBRARY (por implementar)
+            // LIBRARY / TOPICS
             // -------------------------------------------------------------
             composable(Screen.Topics.route) {
                 val userStats by homeViewModel.userStats.collectAsState()
