@@ -69,9 +69,12 @@ fun LoginScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        Color(0xFF2196F3).copy(alpha = 0.15f),
+                        Color(0xFFBBDEFB).copy(alpha = 0.3f),
                         MaterialTheme.colorScheme.surface
-                    )
+                    ),
+                    startY = 0f,
+                    endY = Float.POSITIVE_INFINITY
                 )
             )
     ) {
@@ -90,57 +93,70 @@ fun LoginScreen(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                // Logo
+                // Logo with enhanced design
                 Card(
                     modifier = Modifier
-                        .size(160.dp)
-                        .shadow(8.dp, CircleShape),
+                        .size(180.dp)
+                        .shadow(12.dp, CircleShape),
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = Color.White
                     )
                 ) {
-                    AsyncImage(
-                        model = "https://pub-05700fc259bc4e839552241871f5e896.r2.dev/KetzalliLabsLogo.jpg",
-                        contentDescription = "KetzalliLabs Logo",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = "https://pub-05700fc259bc4e839552241871f5e896.r2.dev/KetzalliLabsLogo.jpg",
+                            contentDescription = "KetzalliLabs Logo",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(20.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // App name
+                // App name with enhanced styling
                 Text(
                     text = "Amoxcalli",
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF0D1A3A),
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Bienvenido",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF2196F3),
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Tu biblioteca digital al alcance de tu mano",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                Card(
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White.copy(alpha = 0.7f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = "Aprende Lengua de Señas Mexicana de forma interactiva",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
 
             // Bottom section with button and states
@@ -179,7 +195,7 @@ fun LoginScreen(
                     else -> {}
                 }
 
-                // Botón de Google Sign-In
+                // Botón de Google Sign-In con diseño mejorado
                 Button(
                     onClick = {
                         val signInClient = authViewModel.getGoogleSignInClient(
@@ -190,12 +206,12 @@ fun LoginScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
-                        .shadow(4.dp, RoundedCornerShape(16.dp)),
-                    shape = RoundedCornerShape(16.dp),
+                        .height(60.dp)
+                        .shadow(8.dp, RoundedCornerShape(20.dp)),
+                    shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF0D1A3A)
                     ),
                     enabled = authState !is AuthState.Loading
                 ) {
@@ -204,10 +220,12 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         // Google icon
-                        Surface(
-                            modifier = Modifier.size(24.dp),
+                        Card(
+                            modifier = Modifier.size(32.dp),
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFF2196F3)
+                            )
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -215,18 +233,18 @@ fun LoginScreen(
                             ) {
                                 Text(
                                     text = "G",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color.White,
                                     textAlign = TextAlign.Center
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             text = "Continuar con Google",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

@@ -29,12 +29,12 @@ fun ImageToTextGame(
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color(0xFFF3F4F7)
+        color = Color(0xFFF8F6EF) // App's main background color
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             GameHeader(
@@ -42,6 +42,7 @@ fun ImageToTextGame(
                 topicName = state.exercise.categoryName,
                 energy = 20,
                 coins = 100,
+                xp = 250,
                 onCloseClick = onCloseClick
             )
 

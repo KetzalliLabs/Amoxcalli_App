@@ -17,11 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 import com.req.software.amoxcalli_app.domain.model.UserStats
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
 import com.req.software.amoxcalli_app.ui.components.searchbars.SearchBar
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 data class LibraryWordUi(
     val id: String,
@@ -53,7 +55,7 @@ fun LibraryScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF2196F3))
+                .background(ThirdColor) // Using theme color - Dark navy blue
                 .padding(top = 12.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -77,7 +79,7 @@ fun LibraryScreen(
                 text = "Librería",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E88E5),
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 

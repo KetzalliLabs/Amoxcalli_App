@@ -20,6 +20,7 @@ import com.req.software.amoxcalli_app.navigation.Screen
 import com.req.software.amoxcalli_app.ui.screens.*
 import com.req.software.amoxcalli_app.ui.theme.Amoxcalli_AppTheme
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.ui.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,21 +42,34 @@ fun AmoxcalliApp() {
 
     NavHost(
         navController = navController,
-        startDestination = if (currentUser != null) Screen.MainMenu.route else Screen.Login.route
+        startDestination = if (currentUser != null) "app_navigation" else Screen.Login.route
     ) {
         // Login Screen
         composable(Screen.Login.route) {
             LoginScreen(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate(Screen.MainMenu.route) {
+                    navController.navigate("app_navigation") {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        // Main Menu Screen
+        // Main App Navigation (Home, Learn, Library, Quiz, Profile)
+        composable("app_navigation") {
+            AppNavigation(
+                authViewModel = authViewModel,
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Legacy routes maintained for backward compatibility
+        // Main Menu Screen (old Duolingo-style learning path)
         composable(Screen.MainMenu.route) {
             val userId = currentUser?.id ?: currentUser?.firebaseUid ?: "default_user"
             MainMenuScreen(
@@ -66,7 +80,6 @@ fun AmoxcalliApp() {
                 },
                 onNavigateToRoute = { route ->
                     navController.navigate(route) {
-                        // Avoid multiple copies of the same destination
                         launchSingleTop = true
                     }
                 }
@@ -77,18 +90,6 @@ fun AmoxcalliApp() {
         composable(Screen.Quests.route) {
             QuestsScreen(
                 currentRoute = Screen.Quests.route,
-                onNavigateToRoute = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }
-
-        // Profile Screen
-        composable(Screen.Profile.route) {
-            ProfileScreen(
-                currentRoute = Screen.Profile.route,
                 onNavigateToRoute = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true

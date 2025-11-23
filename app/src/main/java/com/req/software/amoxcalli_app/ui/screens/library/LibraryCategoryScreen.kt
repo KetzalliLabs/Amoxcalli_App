@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryTabButton
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 // ----- DATA MODELS -----
 data class Category(val id: String, val name: String)
@@ -41,7 +42,7 @@ fun LibraryCategoriesScreen(
                 PrimaryButton(
                     text = category.name,
                     enablePulse = false,
-                    backgroundColor = Color(0xFF2196F3),
+                    backgroundColor = ThirdColor, // Using theme color - Dark navy blue
                     onClick = { onCategoryClick(category.id) },
                     modifier = Modifier.fillMaxWidth()
                 )

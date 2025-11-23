@@ -26,9 +26,12 @@ import com.req.software.amoxcalli_app.ui.screens.exercises.LearnQuestionType
 import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
-import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen // ✅ AGREGAR ESTE IMPORT
+import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnPhrasesScreen
 import com.req.software.amoxcalli_app.ui.screens.library.parseCategoryJson
 import com.req.software.amoxcalli_app.ui.screens.library.parseLibraryJson
+import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
+import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.ui.screens.exercises.ExerciseTestScreen
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -40,6 +43,7 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
+    object Exercises : Screen("exercises")
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
     }
@@ -49,7 +53,10 @@ sealed class Screen(val route: String) {
  * Configuración básica de navegación
  */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    authViewModel: AuthViewModel = viewModel(),
+    onLogout: () -> Unit = {}
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
@@ -109,15 +116,22 @@ fun AppNavigation() {
                     },
                     onPracticeClick = {
                         navController.navigate(Screen.Practice.route)
+                    },
+                    onExercisesClick = {
+                        navController.navigate(Screen.Exercises.route)
                     }
                 )
             }
 
             // -------------------------------------------------------------
-            // LEARN – Pantalla de aprendizaje por temas
+            // LEARN – Pantalla de aprendizaje de frases
             // -------------------------------------------------------------
             composable(Screen.Learn.route) {
-                LearnScreen()
+                LearnPhrasesScreen(
+                    onNavigateToExercises = {
+                        navController.navigate(Screen.Exercises.route)
+                    }
+                )
             }
 
 
@@ -1077,8 +1091,27 @@ fun AppNavigation() {
                 )
             }
 
+            // -------------------------------------------------------------
+            // PROFILE – Pantalla de perfil del usuario
+            // -------------------------------------------------------------
             composable(Screen.Profile.route) {
-                // TODO: Implement ProfileScreen
+                ProfileScreen(
+                    authViewModel = authViewModel,
+                    onLogoutSuccess = {
+                        onLogout()
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // EXERCISES – Minijuegos/Ejercicios interactivos
+            // -------------------------------------------------------------
+            composable(Screen.Exercises.route) {
+                ExerciseTestScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
