@@ -12,32 +12,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Special3Color,           // Dark green for primary actions
+    secondary = Special2Color,         // Light gray for secondary elements
+    tertiary = ThirdColor,             // Navy blue for tertiary
+    background = Special1Color,        // Dark gray background
+    surface = ComplementColor,         // Almost black for surfaces
+    onPrimary = MainColor,            // Light cream text on primary
+    onSecondary = ComplementColor,    // Dark text on secondary
+    onTertiary = MainColor,           // Light cream text on tertiary
+    onBackground = MainColor,         // Light cream text on background
+    onSurface = MainColor             // Light cream text on surface
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Special3Color,           // Dark green for primary actions
+    secondary = Special2Color,         // Light gray for secondary elements
+    tertiary = ThirdColor,             // Navy blue for tertiary
+    background = MainColor,            // Light cream background
+    surface = MainColor,               // Light cream for surfaces
+    onPrimary = MainColor,            // Light cream text on primary
+    onSecondary = ComplementColor,    // Dark text on secondary
+    onTertiary = MainColor,           // Light cream text on tertiary
+    onBackground = ComplementColor,   // Dark text on background
+    onSurface = ComplementColor       // Dark text on surface
 )
 
 @Composable
 fun Amoxcalli_AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Dynamic color is available on Android 12+ but we disable it to use our custom palette
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
