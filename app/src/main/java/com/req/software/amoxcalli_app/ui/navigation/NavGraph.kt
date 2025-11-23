@@ -18,13 +18,15 @@ import androidx.navigation.compose.rememberNavController
 import com.req.software.amoxcalli_app.ui.components.navigation.BottomNavBar
 import com.req.software.amoxcalli_app.ui.navigation.Screen.Quiz
 import com.req.software.amoxcalli_app.ui.screens.home.HomeScreen
-import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameScreen
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnGameUiState
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnOptionUi
 import com.req.software.amoxcalli_app.ui.screens.learn.LearnQuestionType
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
+import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
+import com.req.software.amoxcalli_app.ui.screens.profile.EditProfileScreen
+import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -35,6 +37,10 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
+
+    // NUEVA RUTA
+    object EditProfile : Screen("edit_profile")
+
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
     }
@@ -167,12 +173,10 @@ fun AppNavigation() {
                 )
             }
 
-
             // -------------------------------------------------------------
-            // LIBRARY (por implementar)
+            // LIBRARY / TOPICS
             // -------------------------------------------------------------
             composable(Screen.Topics.route) {
-                // TODO: Implementar TopicsScreen
                 val sampleWordList = listOf(
                     LibraryWordUi("1", "Carro", true),
                     LibraryWordUi("2", "Avión"),
@@ -190,10 +194,26 @@ fun AppNavigation() {
             }
 
             // -------------------------------------------------------------
-            // PROFILE (por implementar) pene
+            // PROFILE
             // -------------------------------------------------------------
             composable(Screen.Profile.route) {
-                // TODO: Implementar ProfileScreen
+                ProfileScreen(
+                    onBack = { navController.popBackStack() },
+
+                    // AL DAR CLICK EN "Edit Profile" → navega a edit_profile
+                    onEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // EDIT PROFILE (subpantalla SIN bottom bar)
+            // -------------------------------------------------------------
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
