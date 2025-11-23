@@ -121,7 +121,7 @@ fun LearnPhrasesScreen(
         topBar = {
             Column(
                 modifier = Modifier
-                    .background(Color(0xFF2196F3))
+                    .background(Color(0xFF0D1A3A)) // third_color - Dark navy blue
                     .padding(top = 15.dp, bottom = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -138,15 +138,7 @@ fun LearnPhrasesScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF2196F3),
-                            Color(0xFFBBDEFB).copy(alpha = 0.7f),
-                            Color.White
-                        )
-                    )
-                ),
+                .background(Color(0xFFF8F6EF)), // main_color background
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {

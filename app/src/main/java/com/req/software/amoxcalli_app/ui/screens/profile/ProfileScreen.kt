@@ -48,7 +48,7 @@ fun ProfileScreen(
         topBar = {
             Column(
                 modifier = Modifier
-                    .background(ThirdColor)
+                    .background(Color(0xFF0D1A3A)) // third_color
                     .padding(top = 15.dp, bottom = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -66,15 +66,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF2196F3).copy(alpha = 0.1f),
-                            Color(0xFFBBDEFB).copy(alpha = 0.2f),
-                            MaterialTheme.colorScheme.surface
-                        )
-                    )
-                )
+                .background(Color(0xFFF8F6EF)) // main_color background
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -84,11 +76,12 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .size(140.dp)
-                    .shadow(12.dp, CircleShape),
+                    .shadow(8.dp, CircleShape),
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                )
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -142,12 +135,12 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .shadow(4.dp, RoundedCornerShape(20.dp)),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                )
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp)
@@ -202,7 +195,8 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .shadow(3.dp, RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -218,7 +212,7 @@ fun ProfileScreen(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Configuración",
-                        tint = Color(0xFF2196F3),
+                        tint = Color(0xFF0D1A3A), // third_color
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -226,7 +220,7 @@ fun ProfileScreen(
                         text = "Configuración",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color(0xFF0D1A3A) // third_color
                     )
                 }
             }
@@ -239,12 +233,15 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
-                    .height(60.dp)
-                    .shadow(4.dp, RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
+                    .height(60.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFEF5350),
                     contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp
                 )
             ) {
                 Icon(

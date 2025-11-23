@@ -56,7 +56,7 @@ fun GameHeader(
         // Barra del tema con el color del tema de la app
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color(0xFF2196F3), // App's primary blue
+            color = Color(0xFF0D1A3A), // third_color - Dark navy blue
             shape = RoundedCornerShape(20.dp),
             shadowElevation = 4.dp
         ) {
@@ -120,15 +120,15 @@ fun GameTextButton(
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(16.dp))
             .border(
-                width = 2.dp,
-                color = if (selected) Color(0xFF00C853) else Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(24.dp)
+                width = 3.dp,
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
+                shape = RoundedCornerShape(16.dp)
             )
             .clickable { onClick() },
         color = if (selected) Color(0xFFE8F5E9) else Color.White,
-        shadowElevation = if (selected) 4.dp else 1.dp
+        shadowElevation = if (selected) 6.dp else 2.dp
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
