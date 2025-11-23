@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.Dp
  * - Borde brillante que parpadea
  * - Sombra de color animada
  * - Degradado de fondo
- * - Animación al presionar
+ * - Animación al presionarpri
  */
 @Composable
 fun PrimaryButton(

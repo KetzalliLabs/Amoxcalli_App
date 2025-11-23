@@ -12,6 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.req.software.amoxcalli_app.R
 import com.req.software.amoxcalli_app.ui.navigation.Screen
+import com.req.software.amoxcalli_app.ui.theme.Special2Color
+import com.req.software.amoxcalli_app.ui.theme.Special3Color
 
 data class BottomNavItem(
     val screen: Screen,
@@ -32,10 +34,15 @@ fun BottomNavBar(
             label = "Home"
         ),
         BottomNavItem(
-            screen = Screen.Quiz,
-            iconRes = R.drawable.ic_topics,
-            label = "Temas"
+            screen = Screen.Learn, // ✅ AGREGAR Learn
+            iconRes = R.drawable.ic_topics, // ✅ Necesitas crear este ícono
+            label = "Aprender"
         ),
+//        BottomNavItem(
+//            screen = Screen.Quiz,
+//            iconRes = R.drawable.ic_topics,
+//            label = "Temas"
+//        ),
         BottomNavItem(
             screen = Screen.Topics,
             iconRes = R.drawable.ic_search,
@@ -51,10 +58,10 @@ fun BottomNavBar(
     NavigationBar(
         modifier = modifier
         .height(75.dp),
-        containerColor = Color.White,
-        contentColor = Color.Gray,          // ← Color de íconos
-        tonalElevation = 0.dp,              // ← Sin sombra
-        windowInsets = WindowInsets(0.dp)  // ← ESTO ELIMINA EL FONDO GRIS
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = Special2Color,       // Using theme light gray for icons
+        tonalElevation = 0.dp,              // No shadow
+        windowInsets = WindowInsets(0.dp)
 
     ) {
         items.forEach { item ->
@@ -75,10 +82,10 @@ fun BottomNavBar(
                 selected = currentRoute == item.screen.route,
                 onClick = { onNavigate(item.screen.route) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color(0xFF4CAF50),
-                    selectedTextColor = Color(0xFF4CAF50),
-                    unselectedIconColor = Color.Gray,
-                    unselectedTextColor = Color.Gray,
+                    selectedIconColor = Special3Color,      // Using theme dark green
+                    selectedTextColor = Special3Color,      // Using theme dark green
+                    unselectedIconColor = Special2Color,    // Using theme light gray
+                    unselectedTextColor = Special2Color,    // Using theme light gray
                     indicatorColor = Color.Transparent
                 )
             )
