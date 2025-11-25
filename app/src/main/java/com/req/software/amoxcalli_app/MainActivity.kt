@@ -20,6 +20,7 @@ import com.req.software.amoxcalli_app.navigation.Screen
 import com.req.software.amoxcalli_app.ui.screens.*
 import com.req.software.amoxcalli_app.ui.theme.Amoxcalli_AppTheme
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 import com.req.software.amoxcalli_app.ui.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AmoxcalliApp() {
     val authViewModel: AuthViewModel = viewModel()
+    val userStatsViewModel: UserStatsViewModel = viewModel()
     val currentUser by authViewModel.currentUser.collectAsState()
     val navController = rememberNavController()
 
@@ -48,6 +50,7 @@ fun AmoxcalliApp() {
         composable(Screen.Login.route) {
             LoginScreen(
                 authViewModel = authViewModel,
+                userStatsViewModel = userStatsViewModel,
                 onLoginSuccess = {
                     navController.navigate("app_navigation") {
                         popUpTo(Screen.Login.route) { inclusive = true }
@@ -61,6 +64,7 @@ fun AmoxcalliApp() {
             AppNavigation(
                 authViewModel = authViewModel,
                 onLogout = {
+                    userStatsViewModel.clearStats()
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }

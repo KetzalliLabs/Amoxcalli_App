@@ -28,8 +28,9 @@ fun LibraryCategoriesScreen(
 ) {
     Column(
         modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8F6EF)) // main_color background
             .padding(20.dp)
-            .fillMaxWidth()
     ) {
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -42,7 +43,7 @@ fun LibraryCategoriesScreen(
                 PrimaryButton(
                     text = category.name,
                     enablePulse = false,
-                    backgroundColor = ThirdColor, // Using theme color - Dark navy blue
+                    backgroundColor = Color(0xFF0D1A3A), // third_color - Dark navy blue
                     onClick = { onCategoryClick(category.id) },
                     modifier = Modifier.fillMaxWidth()
                 )

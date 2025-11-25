@@ -71,6 +71,7 @@ fun LibraryScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color(0xFFF8F6EF)) // main_color background
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(8.dp))

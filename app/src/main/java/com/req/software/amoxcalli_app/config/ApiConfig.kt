@@ -24,5 +24,6 @@ object ApiConfig {
     object Endpoints {
         const val LOGIN = "auth/login"
         const val REGISTER = "auth/register"
+        const val USER_STATS = "auth/me/stats"
     }
 }

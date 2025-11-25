@@ -3,13 +3,14 @@ package com.req.software.amoxcalli_app.ui.screens.profile
 import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -28,8 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
+import com.req.software.amoxcalli_app.ui.theme.MainColor
 import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
+import kotlin.math.roundToInt
 
 /**
  * Pantalla de perfil del usuario
@@ -38,11 +43,20 @@ import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 @Composable
 fun ProfileScreen(
     authViewModel: AuthViewModel = viewModel(),
-    onLogoutSuccess: () -> Unit = {}
+    userStatsViewModel: UserStatsViewModel = viewModel(),
+    onLogoutSuccess: () -> Unit = {},
+    onNavigateToEditProfile: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
+    val userStats by userStatsViewModel.userStats.collectAsState()
+    val isLoading by userStatsViewModel.isLoading.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    // Load stats when screen appears
+    LaunchedEffect(Unit) {
+        authViewModel.loadUserStats(userStatsViewModel)
+    }
 
     Scaffold(
         topBar = {
@@ -66,15 +80,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF2196F3).copy(alpha = 0.1f),
-                            Color(0xFFBBDEFB).copy(alpha = 0.2f),
-                            MaterialTheme.colorScheme.surface
-                        )
-                    )
-                )
+                .background(MainColor)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -84,11 +90,12 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .size(140.dp)
-                    .shadow(12.dp, CircleShape),
+                    .shadow(8.dp, CircleShape),
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                )
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -108,7 +115,7 @@ fun ProfileScreen(
                             text = currentUser?.displayName?.firstOrNull()?.toString()?.uppercase() ?: "U",
                             fontSize = 56.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2196F3)
+                            color = Special3Color
                         )
                     }
                 }
@@ -136,47 +143,87 @@ fun ProfileScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Estadísticas del usuario
+            // Stats Overview Cards
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Streak Card
+                StatsCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Favorite,
+                    iconTint = Color(0xFFFF6B6B),
+                    label = "Racha Actual",
+                    value = userStats?.streak?.currentDays?.toString() ?: "0",
+                    subtitle = "días"
+                )
+
+                // Exercises Completed
+                StatsCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.CheckCircle,
+                    iconTint = Color(0xFF4CAF50),
+                    label = "Ejercicios",
+                    value = userStatsViewModel.getExercisesCompleted().toString(),
+                    subtitle = "completados"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Accuracy
+                StatsCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Star,
+                    iconTint = Color(0xFFFFC107),
+                    label = "Precisión",
+                    value = "${userStatsViewModel.getAccuracyPercentage().roundToInt()}%",
+                    subtitle = "${userStatsViewModel.getCorrectAttempts()}/${userStatsViewModel.getTotalAttempts()}"
+                )
+
+                // Medals
+                StatsCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.EmojiEvents,
+                    iconTint = Color(0xFFFF9800),
+                    label = "Medallas",
+                    value = userStatsViewModel.getMedalsCount().toString(),
+                    subtitle = "logradas"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Progress Section
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(20.dp),
+                    .padding(horizontal = 16.dp)
+                    .shadow(3.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                )
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(20.dp)
                 ) {
                     Text(
-                        text = "Estadísticas",
-                        fontSize = 20.sp,
+                        text = "Progreso por Categorías",
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        StatItem(
-                            label = "Nivel",
-                            value = "1"
-                        )
-                        StatItem(
-                            label = "Racha",
-                            value = "0"
-                        )
-                        StatItem(
-                            label = "XP",
-                            value = "0"
-                        )
-                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -184,30 +231,129 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        StatItem(
-                            label = "Monedas",
-                            value = currentUser?.coin?.toString() ?: "0"
+                        ProgressItem(
+                            label = "En Progreso",
+                            value = userStatsViewModel.getCategoriesInProgress().toString(),
+                            color = Special3Color
                         )
-                        StatItem(
-                            label = "Gemas",
-                            value = "0"
+                        ProgressItem(
+                            label = "Completadas",
+                            value = userStatsViewModel.getCategoriesCompleted().toString(),
+                            color = Color(0xFF4CAF50)
+                        )
+                        ProgressItem(
+                            label = "Mejor Racha",
+                            value = userStats?.streak?.bestDays?.toString() ?: "0",
+                            color = Color(0xFFFF9800)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Botón de Configuración (opcional)
+            // Medals Section
+            if (!userStats?.medals.isNullOrEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .shadow(3.dp, RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Text(
+                            text = "Medallas Recientes",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(userStats?.medals?.take(5) ?: emptyList()) { medal ->
+                                MedalItem(
+                                    name = medal.name,
+                                    iconUrl = medal.iconUrl
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            // Achievements Summary
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 16.dp)
+                    .shadow(3.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text(
+                        text = "Resumen de Actividad",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ActivityRow(
+                        icon = Icons.Default.Assignment,
+                        label = "Intentos Totales",
+                        value = userStats?.attempts?.total?.toString() ?: "0"
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    ActivityRow(
+                        icon = Icons.Default.CheckCircle,
+                        label = "Respuestas Correctas",
+                        value = userStats?.attempts?.correct?.toString() ?: "0"
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    ActivityRow(
+                        icon = Icons.Default.Visibility,
+                        label = "Señas Vistas",
+                        value = userStats?.signViews?.size?.toString() ?: "0"
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    ActivityRow(
+                        icon = Icons.Default.LocalLibrary,
+                        label = "Ejercicios Históricos",
+                        value = userStats?.exerciseHistory?.size?.toString() ?: "0"
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de Configuración
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .shadow(3.dp, RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
-                onClick = { /* TODO: Navegar a configuración */ }
+                onClick = { onNavigateToEditProfile() }
             ) {
                 Row(
                     modifier = Modifier
@@ -218,7 +364,7 @@ fun ProfileScreen(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Configuración",
-                        tint = Color(0xFF2196F3),
+                        tint = ThirdColor,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -226,7 +372,7 @@ fun ProfileScreen(
                         text = "Configuración",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = ThirdColor
                     )
                 }
             }
@@ -239,12 +385,15 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
-                    .height(60.dp)
-                    .shadow(4.dp, RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
+                    .height(60.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFEF5350),
                     contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp
                 )
             ) {
                 Icon(
@@ -323,21 +472,165 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun StatItem(label: String, value: String) {
+private fun StatsCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    iconTint: Color,
+    label: String,
+    value: String,
+    subtitle: String
+) {
+    Card(
+        modifier = modifier
+            .shadow(3.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = iconTint,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = value,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = subtitle,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProgressItem(
+    label: String,
+    value: String,
+    color: Color
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = value,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF2196F3)
+            color = color
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun MedalItem(
+    name: String,
+    iconUrl: String?
+) {
+    Card(
+        modifier = Modifier
+            .size(80.dp)
+            .shadow(2.dp, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF8E1)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (iconUrl != null) {
+                AsyncImage(
+                    model = iconUrl,
+                    contentDescription = name,
+                    modifier = Modifier.size(40.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.EmojiEvents,
+                    contentDescription = name,
+                    tint = Color(0xFFFFB300),
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = name,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActivityRow(
+    icon: ImageVector,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = Special3Color,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

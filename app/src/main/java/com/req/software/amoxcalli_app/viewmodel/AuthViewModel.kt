@@ -27,6 +27,9 @@ class AuthViewModel : ViewModel() {
     private val _currentUser = MutableStateFlow<UserResponse?>(null)
     val currentUser: StateFlow<UserResponse?> = _currentUser
 
+    private val _authToken = MutableStateFlow<String?>(null)
+    val authToken: StateFlow<String?> = _authToken
+
     init {
         // No cargar automáticamente usuario para forzar login manual cada vez
         // Si deseas permitir sesiones persistentes, implementa SharedPreferences o DataStore
@@ -47,6 +50,7 @@ class AuthViewModel : ViewModel() {
                 // Actualizar el estado para evitar recargas
                 _currentUser.value = null
                 _authState.value = AuthState.Idle
+                _authToken.value = null
 
                 // Cerrar sesión de Google Sign-In para forzar selección de cuenta en próximo login
                 googleSignInClient?.signOut()
@@ -57,6 +61,7 @@ class AuthViewModel : ViewModel() {
                 // Aún así mantener la sesión cerrada
                 _currentUser.value = null
                 _authState.value = AuthState.Idle
+                _authToken.value = null
                 auth.signOut()
             }
         }
@@ -102,6 +107,16 @@ class AuthViewModel : ViewModel() {
 
                 if (response.success && response.data != null) {
                     _currentUser.value = response.data
+
+                    // Get Firebase ID token for subsequent API calls
+                    try {
+                        val token = firebaseUser.getIdToken(false).await()
+                        _authToken.value = "Bearer ${token.token}"
+                    } catch (e: Exception) {
+                        // Continue even if token fetch fails
+                        _authToken.value = null
+                    }
+
                     _authState.value = AuthState.Success(response.data)
                 } else {
                     _authState.value = AuthState.Error(response.message ?: "Error al sincronizar con el servidor")
@@ -109,6 +124,16 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Error de conexión con el servidor")
             }
+        }
+    }
+
+    /**
+     * Load user stats using UserStatsViewModel
+     * Should be called after successful login
+     */
+    fun loadUserStats(userStatsViewModel: UserStatsViewModel) {
+        _authToken.value?.let { token ->
+            userStatsViewModel.loadUserStats(token)
         }
     }
 }

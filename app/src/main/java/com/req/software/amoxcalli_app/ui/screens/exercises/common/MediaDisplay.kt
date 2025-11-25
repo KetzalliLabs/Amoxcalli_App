@@ -68,8 +68,8 @@ fun ImageDisplay(
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .border(
-                width = 1.dp,
-                color = Color(0xFFE0E0E0),
+                width = 2.dp,
+                color = Color(0xFFC9CCD1), // special2_color
                 shape = RoundedCornerShape(16.dp)
             ),
         contentAlignment = Alignment.Center
@@ -105,8 +105,8 @@ fun GameImageButton(
             .aspectRatio(1f)
             .clip(RoundedCornerShape(16.dp))
             .border(
-                width = 2.dp,
-                color = if (selected) Color(0xFF00C853) else Color(0xFFE0E0E0),
+                width = 3.dp,
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
                 shape = RoundedCornerShape(16.dp)
             )
             .background(
@@ -146,12 +146,12 @@ fun GameVideoButton(
             .aspectRatio(1f)
             .clip(RoundedCornerShape(16.dp))
             .border(
-                width = 2.dp,
-                color = if (selected) Color(0xFF00C853) else Color(0xFFE0E0E0),
+                width = 3.dp,
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
                 shape = RoundedCornerShape(16.dp)
             )
             .background(
-                if (selected) Color(0xFFE8F5E9) else Color(0xFFE0E0E0)
+                if (selected) Color(0xFFE8F5E9) else Color(0xFFF8F6EF) // main_color
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
