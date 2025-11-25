@@ -5,7 +5,10 @@ import com.req.software.amoxcalli_app.data.dto.ApiResponse
 import com.req.software.amoxcalli_app.data.dto.LoginRequest
 import com.req.software.amoxcalli_app.data.dto.UserRegistrationRequest
 import com.req.software.amoxcalli_app.data.dto.UserResponse
+import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 /**
@@ -28,4 +31,12 @@ interface AuthService {
      */
     @POST(ApiConfig.Endpoints.REGISTER)
     suspend fun register(@Body request: UserRegistrationRequest): ApiResponse<UserResponse>
+
+    /**
+     * Get user stats and progress
+     * @param authToken Firebase auth token
+     * @return User stats including progress, streak, medals, etc.
+     */
+    @GET(ApiConfig.Endpoints.USER_STATS)
+    suspend fun getUserStats(@Header("Authorization") authToken: String): ApiResponse<UserStatsResponse>
 }

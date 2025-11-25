@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 data class EditProfileUiState(
     val coins: String = "301",
@@ -41,12 +42,10 @@ fun EditProfileScreen(
     onSendEmailClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val bgBlue = Color(0xFF1F56E5)
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(bgBlue)
+            .background(ThirdColor)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
@@ -125,7 +124,7 @@ fun EditProfileScreen(
                 Icon(
                     Icons.Default.Edit,
                     contentDescription = "Editar foto",
-                    tint = bgBlue,
+                    tint = ThirdColor,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -224,7 +223,7 @@ private fun EmailField(label: String, value: String, onSendClick: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp)
             ) {
-                Text("Enviar", color = Color(0xFF1F56E5), fontWeight = FontWeight.Bold)
+                Text("Enviar", color = ThirdColor, fontWeight = FontWeight.Bold)
             }
         }
 

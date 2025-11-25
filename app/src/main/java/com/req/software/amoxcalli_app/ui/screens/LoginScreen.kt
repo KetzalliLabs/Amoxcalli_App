@@ -31,10 +31,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.req.software.amoxcalli_app.viewmodel.AuthState
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(),
+    userStatsViewModel: UserStatsViewModel = viewModel(),
     onLoginSuccess: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -59,6 +61,8 @@ fun LoginScreen(
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
+            // Load user stats after successful login
+            authViewModel.loadUserStats(userStatsViewModel)
             onLoginSuccess()
         }
     }

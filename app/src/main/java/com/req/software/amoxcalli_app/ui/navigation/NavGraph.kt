@@ -30,7 +30,9 @@ import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnPhrasesScreen
 import com.req.software.amoxcalli_app.ui.screens.library.parseCategoryJson
 import com.req.software.amoxcalli_app.ui.screens.library.parseLibraryJson
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
+import com.req.software.amoxcalli_app.ui.screens.profile.EditProfileScreen
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 import com.req.software.amoxcalli_app.ui.screens.exercises.ExerciseTestScreen
 
 /**
@@ -43,6 +45,7 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
+    object EditProfile : Screen("edit_profile")
     object Exercises : Screen("exercises")
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
@@ -62,6 +65,7 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
     val homeViewModel: HomeViewModel = viewModel()
+    val userStatsViewModel: UserStatsViewModel = viewModel()
 
     Scaffold(
         containerColor = Color.White,
@@ -1096,8 +1100,25 @@ fun AppNavigation(
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     authViewModel = authViewModel,
+                    userStatsViewModel = userStatsViewModel,
                     onLogoutSuccess = {
+                        userStatsViewModel.clearStats()
                         onLogout()
+                    },
+                    onNavigateToEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // EDIT PROFILE – Pantalla de edición de perfil
+            // -------------------------------------------------------------
+            composable(Screen.EditProfile.route) {
+                val currentUser by authViewModel.currentUser.collectAsState()
+                EditProfileScreen(
+                    onBack = {
+                        navController.popBackStack()
                     }
                 )
             }
