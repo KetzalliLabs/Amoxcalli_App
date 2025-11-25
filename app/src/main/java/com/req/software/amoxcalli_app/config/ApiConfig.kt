@@ -16,7 +16,7 @@ object ApiConfig {
      * For Android Emulator: Use 10.0.2.2 (refers to host machine's localhost)
      * For Physical Device: Use your computer's local IP (e.g., 192.168.1.100)
      */
-    const val BASE_URL = "http://10.0.2.2:3000/api/"
+    const val BASE_URL = "ketzallidbapi-production.up.railway.app/api/"
 
     /**
      * API Endpoints (relative to BASE_URL)
