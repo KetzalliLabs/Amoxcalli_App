@@ -81,6 +81,7 @@ dependencies {
 
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.7.5")
+    //Holap
     implementation("androidx.compose.material:material-icons-extended")
 
     // Para cargar imágenes desde URLs
