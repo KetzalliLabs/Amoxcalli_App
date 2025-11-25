@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 /**
  * Header estándar para todos los ejercicios
  * Muestra nivel, tema, estadísticas y botón cerrar
+ * Actualizado para coincidir con el diseño de la app
  */
 @Composable
 fun GameHeader(
@@ -42,31 +43,31 @@ fun GameHeader(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 coins?.let { StatPill("💰 $it") }
-                StatPill("🔋 $energy")
-                xp?.let { StatPill("XP $it") }
+                StatPill("⚡ $energy")
+                xp?.let { StatPill("⭐ $it") }
             }
         }
 
-        // Barra del tema
+        // Barra del tema con el color del tema de la app
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color(0xFF1E88E5),
-            shape = RoundedCornerShape(16.dp),
-            shadowElevation = 3.dp
+            color = Color(0xFF0D1A3A), // third_color - Dark navy blue
+            shape = RoundedCornerShape(20.dp),
+            shadowElevation = 4.dp
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "$levelNumber. $topicName",
+                    text = "Nivel $levelNumber · $topicName",
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -87,18 +88,21 @@ fun GameHeader(
 
 /**
  * Píldora de estadística (monedas, energía, XP)
+ * Actualizada con el diseño de la app
  */
 @Composable
 fun StatPill(text: String) {
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(50),
-        shadowElevation = 2.dp
+        shadowElevation = 3.dp
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-            fontSize = 12.sp
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF0D1A3A)
         )
     }
 }
@@ -116,15 +120,15 @@ fun GameTextButton(
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(16.dp))
             .border(
-                width = 2.dp,
-                color = if (selected) Color(0xFF00C853) else Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(24.dp)
+                width = 3.dp,
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
+                shape = RoundedCornerShape(16.dp)
             )
             .clickable { onClick() },
         color = if (selected) Color(0xFFE8F5E9) else Color.White,
-        shadowElevation = if (selected) 4.dp else 1.dp
+        shadowElevation = if (selected) 6.dp else 2.dp
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -140,8 +144,9 @@ fun GameTextButton(
 }
 
 /**
- * Botón de confirmación verde
+ * Botón de confirmación
  * Habilitado/deshabilitado según haya selección
+ * Actualizado con el estilo de la app
  */
 @Composable
 fun ConfirmButton(
@@ -155,18 +160,24 @@ fun ConfirmButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
-        shape = RoundedCornerShape(26.dp),
+            .height(60.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF00C853),
+            containerColor = Color(0xFF004225), // App's dark green
             disabledContainerColor = Color(0xFFE0E0E0),
             contentColor = Color.White
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 8.dp,
+            disabledElevation = 0.dp
         )
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
         )
     }
 }

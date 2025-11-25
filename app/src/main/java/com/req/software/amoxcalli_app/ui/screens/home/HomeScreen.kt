@@ -22,6 +22,8 @@ import com.req.software.amoxcalli_app.domain.model.UserStats
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.components.cards.TopicCard
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
+import com.req.software.amoxcalli_app.ui.theme.Special3Color
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 /**
  * Pantalla principal (Home) de la aplicación
@@ -35,21 +37,14 @@ fun HomeScreen(
     onTopicClick: (Topic) -> Unit,
     onQuizClick: () -> Unit,
     onPracticeClick: () -> Unit,
+    onExercisesClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             Column (
                 modifier = Modifier
-                    .background(
-                        Color(0xFF2196F3)
-//                        brush = Brush.horizontalGradient(
-//                            colors = listOf(
-//                                Color(0xFF2196F3),  // Azul arriba
-//                                Color(0xFFBBDEFB),  // Azul claro
-//                            )
-//                        )
-                    ) // Este es el fondo azul que aparece en el topbar
+                    .background(ThirdColor) // Using theme color - Dark navy blue
                     .padding(top= 15.dp, bottom = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -67,15 +62,7 @@ fun HomeScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-//                    Color.White
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF2196F3),  // Azul arriba
-                            Color(0xFFBBDEFB),  // Azul claro
-                        )
-                   )
-                )
+                .background(MaterialTheme.colorScheme.background) // Using theme background
                 .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -128,37 +115,55 @@ fun HomeScreen(
                     text = "¡Quiz diario!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 PrimaryButton(
                     text = "Comenzar",
                     onClick = onQuizClick,
-                    backgroundColor = Color(0xFF4CAF50),
+                    backgroundColor = Special3Color, // Using theme green color
                     enablePulse = true
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Text(
                     text = "Reforzar palabras",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 PrimaryButton(
                     text = "Comenzar",
                     onClick = onPracticeClick,
-                    backgroundColor = Color(0xFF4CAF50),
+                    backgroundColor = Special3Color, // Using theme green color
+                    enablePulse = true
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Minijuegos Interactivos",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                PrimaryButton(
+                    text = "Practicar",
+                    onClick = onExercisesClick,
+                    backgroundColor = Color(0xFF2196F3), // Using theme blue color
                     enablePulse = true
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(80.dp))
         }
     }
@@ -169,7 +174,7 @@ private fun SectionTitle(text: String) {
         text = text,
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
 }
