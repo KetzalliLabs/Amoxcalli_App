@@ -1,6 +1,7 @@
 package com.req.software.amoxcalli_app.ui.screens.profile
 
 import android.app.Activity
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -60,20 +63,13 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            Column(
-                modifier = Modifier
-                    .background(ThirdColor)
-                    .padding(top = 15.dp, bottom = 10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Mi Perfil",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+            AnimatedProfileHeader(
+                displayName = currentUser?.displayName ?: "Usuario",
+                experiencePoints = userStats?.attempts?.total ?: 0,
+                coins = currentUser?.coin ?: 0,
+                streak = userStats?.streak?.currentDays ?: 0,
+                medalsCount = userStats?.medals?.size ?: 0
+            )
         }
     ) { paddingValues ->
         Column(
@@ -632,6 +628,161 @@ private fun ActivityRow(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+private fun AnimatedProfileHeader(
+    displayName: String,
+    experiencePoints: Int,
+    coins: Int,
+    streak: Int,
+    medalsCount: Int
+) {
+    // Gradient colors for header
+    val gradientColors = listOf(
+        Color(0xFF6A1B9A),
+        Color(0xFF8E24AA),
+        Color(0xFFAB47BC),
+        Color(0xFFCE93D8)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = gradientColors
+                    )
+                )
+                .padding(top = 20.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Profile Title with animation
+            Text(
+                text = "Mi Perfil",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Stats Row with animations
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // XP Stat
+                AnimatedProfileStat(
+                    emoji = "⭐",
+                    value = experiencePoints.toString(),
+                    label = "XP",
+                    color = Color(0xFFFFF8E1)
+                )
+
+                // Coins Stat
+                AnimatedProfileStat(
+                    emoji = "🪙",
+                    value = coins.toString(),
+                    label = "Cacao",
+                    color = Color(0xFFFFF3E0)
+                )
+
+                // Streak Stat
+                AnimatedProfileStat(
+                    emoji = "🔥",
+                    value = streak.toString(),
+                    label = "Racha",
+                    color = Color(0xFFFFE5D9)
+                )
+
+                // Medals Stat
+                AnimatedProfileStat(
+                    emoji = "🏆",
+                    value = medalsCount.toString(),
+                    label = "Medallas",
+                    color = Color(0xFFFFECB3)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedProfileStat(
+    emoji: String,
+    value: String,
+    label: String,
+    color: Color
+) {
+    // Bounce animation
+    val infiniteTransition = rememberInfiniteTransition(label = "stat_$label")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
+    // Rotation for emoji
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rotation"
+    )
+
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = color,
+        modifier = Modifier
+            .width(80.dp)
+            .shadow(4.dp, RoundedCornerShape(16.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Animated emoji
+            Text(
+                text = emoji,
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .scale(scale)
+                    .rotate(rotation)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            // Value
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF333333)
+            )
+            // Label
+            Text(
+                text = label,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF666666)
+            )
+        }
     }
 }
 
