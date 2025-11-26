@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +24,7 @@ import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameScreen
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameUiState
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnOptionUi
 import com.req.software.amoxcalli_app.ui.screens.exercises.LearnQuestionType
+import com.req.software.amoxcalli_app.ui.screens.exercises.ApiExerciseScreen
 import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
@@ -104,9 +106,15 @@ fun AppNavigation(
             // HOME
             // -------------------------------------------------------------
             composable(Screen.Home.route) {
+                val apiUserStats by userStatsViewModel.userStats.collectAsState()
                 val userStats by homeViewModel.userStats.collectAsState()
                 val recentTopics by homeViewModel.recentTopics.collectAsState()
                 val recommendedTopics by homeViewModel.recommendedTopics.collectAsState()
+
+                // Update HomeViewModel with data from UserStatsViewModel
+                LaunchedEffect(apiUserStats) {
+                    homeViewModel.updateUserStats(apiUserStats)
+                }
 
                 HomeScreen(
                     userStats = userStats,
@@ -140,24 +148,15 @@ fun AppNavigation(
 
 
             // -------------------------------------------------------------
-            // QUIZ – Juego Aprender con tipo ALEATORIO en cada Confirmar
+            // QUIZ – Juego Aprender con ejercicios reales de la API
             // -------------------------------------------------------------
             composable(Quiz.route) {
-                // Estado completo de la pregunta actual
-                var currentQuestion by remember {
-                    mutableStateOf(generateRandomQuestion())
-                }
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
 
-                LearnGameScreen(
-                    uiState = currentQuestion,
-                    onOptionSelected = { id ->
-                        // Solo actualizamos la opción seleccionada
-                        currentQuestion = currentQuestion.copy(selectedOptionId = id)
-                    },
-                    onConfirmClick = {
-                        // Cada vez que se confirma → nueva pregunta aleatoria
-                        currentQuestion = generateRandomQuestion()
-                    },
+                ApiExerciseScreen(
+                    userStats = userStats,
+                    authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
                     }
@@ -202,6 +201,19 @@ fun AppNavigation(
             // -------------------------------------------------------------
             // LIBRARY / TOPICS
             // -------------------------------------------------------------
+            composable(Screen.Topics.route) {
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
+
+                LibraryScreen(
+                    userStats = userStats,
+                    authToken = authToken,
+                    onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") }
+                )
+            }
+
+            // OLD HARDCODED VERSION (REMOVED)
+            /*
             composable(Screen.Topics.route) {
                 val userStats by homeViewModel.userStats.collectAsState()
 
@@ -1093,6 +1105,7 @@ fun AppNavigation(
                     onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") }
                 )
             }
+            */
 
             // -------------------------------------------------------------
             // PROFILE – Pantalla de perfil del usuario

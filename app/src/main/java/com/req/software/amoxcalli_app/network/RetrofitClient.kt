@@ -38,4 +38,18 @@ object RetrofitClient {
     val authService: AuthService by lazy {
         retrofit.create(AuthService::class.java)
     }
+
+    /**
+     * Items service instance (signs and categories)
+     */
+    val itemsService: com.req.software.amoxcalli_app.service.ItemsService by lazy {
+        retrofit.create(com.req.software.amoxcalli_app.service.ItemsService::class.java)
+    }
+
+    /**
+     * Exercises service instance
+     */
+    val exercisesService: com.req.software.amoxcalli_app.service.ExercisesService by lazy {
+        retrofit.create(com.req.software.amoxcalli_app.service.ExercisesService::class.java)
+    }
 }
