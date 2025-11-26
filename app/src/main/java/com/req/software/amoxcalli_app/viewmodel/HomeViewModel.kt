@@ -2,8 +2,8 @@ package com.req.software.amoxcalli_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.req.software.amoxcalli_app.domain.model.Topic
 import com.req.software.amoxcalli_app.domain.model.UserStats
+import com.req.software.amoxcalli_app.data.dto.Medal
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,22 +11,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel para la pantalla Home
- * Maneja el estado y lógica de negocio de la pantalla principal
+ * Simplified ViewModel for Home screen
+ * Manages user stats and medals
  */
 class HomeViewModel : ViewModel() {
 
     private val _userStats = MutableStateFlow(UserStats())
     val userStats: StateFlow<UserStats> = _userStats.asStateFlow()
 
-    private val _recentTopics = MutableStateFlow<List<Topic>>(emptyList())
-    val recentTopics: StateFlow<List<Topic>> = _recentTopics.asStateFlow()
-
-    private val _recommendedTopics = MutableStateFlow<List<Topic>>(emptyList())
-    val recommendedTopics: StateFlow<List<Topic>> = _recommendedTopics.asStateFlow()
+    private val _medals = MutableStateFlow<List<Medal>>(emptyList())
+    val medals: StateFlow<List<Medal>> = _medals.asStateFlow()
 
     /**
-     * Update user stats from UserStatsResponse
+     * Update user stats and medals from UserStatsResponse
      */
     fun updateUserStats(statsResponse: UserStatsResponse?) {
         if (statsResponse != null) {
@@ -42,69 +39,8 @@ class HomeViewModel : ViewModel() {
                 experience = experience
             )
 
-            // Load topics based on progress
-            loadTopicsFromProgress(statsResponse)
+            // Update medals
+            _medals.value = statsResponse.medals ?: emptyList()
         }
-    }
-
-    /**
-     * Load topics based on user progress
-     */
-    private fun loadTopicsFromProgress(statsResponse: UserStatsResponse) {
-        viewModelScope.launch {
-            val progress = statsResponse.progress ?: emptyList()
-
-            // Map progress to topics (using category IDs)
-            val recentTopicsList = progress.take(3).map { prog ->
-                Topic(
-                    id = prog.categoryId,
-                    name = "Categoría ${prog.categoryId.take(8)}", // Placeholder - should map to actual category name
-                    progress = prog.score,
-                    isRecent = true
-                )
-            }
-
-            val recommendedTopicsList = listOf(
-                Topic(id = "verbos", name = "Verbos simples", progress = 0),
-                Topic(id = "preguntas", name = "Preguntas básicas", progress = 0)
-            )
-
-            _recentTopics.value = recentTopicsList.ifEmpty {
-                listOf(
-                    Topic(id = "abecedario", name = "Abecedario", progress = 0, isRecent = true)
-                )
-            }
-            _recommendedTopics.value = recommendedTopicsList
-        }
-    }
-    
-    /**
-     * Actualiza el progreso de un tema
-     */
-    fun updateTopicProgress(topicId: String, newProgress: Int) {
-        viewModelScope.launch {
-            // TODO: Implementar actualización en Firebase
-        }
-    }
-    
-    /**
-     * Navega a la pantalla de un tema específico
-     */
-    fun navigateToTopic(topic: Topic) {
-        // TODO: Implementar navegación
-    }
-    
-    /**
-     * Inicia el quiz diario
-     */
-    fun startDailyQuiz() {
-        // TODO: Implementar lógica de quiz diario
-    }
-    
-    /**
-     * Inicia la práctica de reforzamiento
-     */
-    fun startPractice() {
-        // TODO: Implementar lógica de práctica
     }
 }

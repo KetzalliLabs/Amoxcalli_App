@@ -20,22 +20,12 @@ import com.req.software.amoxcalli_app.ui.components.navigation.BottomNavBar
 import com.req.software.amoxcalli_app.ui.navigation.Screen.Quiz
 import com.req.software.amoxcalli_app.ui.screens.home.HomeScreen
 import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
-import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameScreen
-import com.req.software.amoxcalli_app.ui.screens.exercises.LearnGameUiState
-import com.req.software.amoxcalli_app.ui.screens.exercises.LearnOptionUi
-import com.req.software.amoxcalli_app.ui.screens.exercises.LearnQuestionType
 import com.req.software.amoxcalli_app.ui.screens.exercises.ApiExerciseScreen
-import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
-import com.req.software.amoxcalli_app.ui.screens.library.LibraryWordUi
-import com.req.software.amoxcalli_app.ui.screens.learnScreen.LearnPhrasesScreen
-import com.req.software.amoxcalli_app.ui.screens.library.parseCategoryJson
-import com.req.software.amoxcalli_app.ui.screens.library.parseLibraryJson
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
 import com.req.software.amoxcalli_app.ui.screens.profile.EditProfileScreen
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
-import com.req.software.amoxcalli_app.ui.screens.exercises.ExerciseTestScreen
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -51,6 +41,9 @@ sealed class Screen(val route: String) {
     object Exercises : Screen("exercises")
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
+    }
+    object WordDetail : Screen("wordDetail/{wordId}") {
+        fun createRoute(wordId: String) = "wordDetail/$wordId"
     }
 }
 
@@ -72,12 +65,10 @@ fun AppNavigation(
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
-            // Solo mostrar el bottom nav en las pantallas principales
+            // Only show bottom nav on main screens
             if (currentRoute in listOf(
                     Screen.Home.route,
-                    Screen.Learn.route,
                     Screen.Topics.route,
-                    Quiz.route,
                     Screen.Profile.route
                 )
             ) {
@@ -85,7 +76,7 @@ fun AppNavigation(
                     currentRoute = currentRoute,
                     onNavigate = { route ->
                         navController.navigate(route) {
-                            // Evitar múltiples copias de la misma pantalla
+                            // Avoid multiple copies of the same screen
                             popUpTo(Screen.Home.route) {
                                 saveState = true
                             }
@@ -103,13 +94,12 @@ fun AppNavigation(
             modifier = Modifier.padding(paddingValues)
         ) {
             // -------------------------------------------------------------
-            // HOME
+            // HOME - Simplified
             // -------------------------------------------------------------
             composable(Screen.Home.route) {
                 val apiUserStats by userStatsViewModel.userStats.collectAsState()
                 val userStats by homeViewModel.userStats.collectAsState()
-                val recentTopics by homeViewModel.recentTopics.collectAsState()
-                val recommendedTopics by homeViewModel.recommendedTopics.collectAsState()
+                val medals by homeViewModel.medals.collectAsState()
 
                 // Update HomeViewModel with data from UserStatsViewModel
                 LaunchedEffect(apiUserStats) {
@@ -118,42 +108,31 @@ fun AppNavigation(
 
                 HomeScreen(
                     userStats = userStats,
-                    recentTopics = recentTopics,
-                    recommendedTopics = recommendedTopics,
-                    onTopicClick = { topic ->
-                        homeViewModel.navigateToTopic(topic)
-                    },
+                    medals = medals,
                     onQuizClick = {
                         navController.navigate(Quiz.route)
                     },
                     onPracticeClick = {
                         navController.navigate(Screen.Practice.route)
                     },
-                    onExercisesClick = {
-                        navController.navigate(Screen.Exercises.route)
+                    onLibraryClick = {
+                        navController.navigate(Screen.Topics.route)
                     }
                 )
             }
 
-            // -------------------------------------------------------------
-            // LEARN – Pantalla de aprendizaje de frases
-            // -------------------------------------------------------------
-            composable(Screen.Learn.route) {
-                LearnPhrasesScreen(
-                    onNavigateToExercises = {
-                        navController.navigate(Screen.Exercises.route)
-                    }
-                )
-            }
+            // REMOVED: Learn section - app simplified
+            // Learn route removed as per app simplification
 
 
             // -------------------------------------------------------------
-            // QUIZ – Juego Aprender con ejercicios reales de la API
+            // QUIZ – Daily Quiz (10 questions from categories)
             // -------------------------------------------------------------
             composable(Quiz.route) {
                 val userStats by userStatsViewModel.userStats.collectAsState()
                 val authToken by authViewModel.authToken.collectAsState()
 
+                // TODO: Replace with DailyQuizScreen once implemented
                 ApiExerciseScreen(
                     userStats = userStats,
                     authToken = authToken,
@@ -164,34 +143,15 @@ fun AppNavigation(
             }
 
             // -------------------------------------------------------------
-            // PRACTICE – puedes dejarla fija o cambiarla después
+            // PRACTICE – Word Practice (from exercises endpoint)
             // -------------------------------------------------------------
             composable(Screen.Practice.route) {
-                var selectedOptionId by remember { mutableStateOf<String?>(null) }
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
 
-                LearnGameScreen(
-                    uiState = LearnGameUiState(
-                        levelNumber = 5,
-                        topicName = "Vehículos",
-                        coins = 300,
-                        energy = 20,
-                        xp = 2500,
-                        questionType = LearnQuestionType.WORD_TO_SIGN,
-                        targetWord = "caballo",
-                        options = listOf(
-                            LearnOptionUi("1", "Opción 1"),
-                            LearnOptionUi("2", "Opción 2"),
-                            LearnOptionUi("3", "Opción 3"),
-                            LearnOptionUi("4", "Opción 4")
-                        ),
-                        selectedOptionId = selectedOptionId
-                    ),
-                    onOptionSelected = { id ->
-                        selectedOptionId = id
-                    },
-                    onConfirmClick = {
-                        // Aquí podrías poner lógica distinta de práctica
-                    },
+                ApiExerciseScreen(
+                    userStats = userStats,
+                    authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
                     }
@@ -1137,81 +1097,20 @@ fun AppNavigation(
             }
 
             // -------------------------------------------------------------
-            // EXERCISES – Minijuegos/Ejercicios interactivos
+            // WORD DETAIL – Detalle de palabra/seña
             // -------------------------------------------------------------
-            composable(Screen.Exercises.route) {
-                ExerciseTestScreen(
-                    onBackClick = {
+            composable("wordDetail/{wordId}") { backStackEntry ->
+                val wordId = backStackEntry.arguments?.getString("wordId") ?: return@composable
+                com.req.software.amoxcalli_app.ui.screens.library.WordDetailScreen(
+                    wordId = wordId,
+                    onClose = {
                         navController.popBackStack()
                     }
                 )
             }
-        }
-    }
-}
 
-
-/**
- * Genera una pregunta aleatoria de uno de los 3 tipos:
- *  - VIDEO_TO_TEXT
- *  - IMAGE_TO_TEXT
- *  - WORD_TO_SIGN
- */
-private fun generateRandomQuestion(): LearnGameUiState {
-    val type = LearnQuestionType.values().random()
-
-    return when (type) {
-        LearnQuestionType.VIDEO_TO_TEXT -> {
-            LearnGameUiState(
-                levelNumber = 5,
-                topicName = "Vehículos",
-                energy = 20,
-                questionType = LearnQuestionType.VIDEO_TO_TEXT,
-                promptText = "¿Cuál es esta palabra?",
-                options = listOf(
-                    LearnOptionUi("1", "Carro"),
-                    LearnOptionUi("2", "Avión"),
-                    LearnOptionUi("3", "Camión"),
-                    LearnOptionUi("4", "Bicicleta")
-                ),
-                selectedOptionId = null
-            )
-        }
-
-        LearnQuestionType.IMAGE_TO_TEXT -> {
-            LearnGameUiState(
-                levelNumber = 5,
-                topicName = "Vehículos",
-                energy = 20,
-                questionType = LearnQuestionType.IMAGE_TO_TEXT,
-                promptText = "¿Cuál es esta palabra?",
-                options = listOf(
-                    LearnOptionUi("1", "Carro"),
-                    LearnOptionUi("2", "Camión"),
-                    LearnOptionUi("3", "Bicicleta"),
-                    LearnOptionUi("4", "Avión")
-                ),
-                selectedOptionId = null
-            )
-        }
-
-        LearnQuestionType.WORD_TO_SIGN -> {
-            LearnGameUiState(
-                levelNumber = 5,
-                topicName = "Vehículos",
-                coins = 300,
-                energy = 20,
-                xp = 2500,
-                questionType = LearnQuestionType.WORD_TO_SIGN,
-                targetWord = "caballo",
-                options = listOf(
-                    LearnOptionUi("1", "Seña A"),
-                    LearnOptionUi("2", "Seña B"),
-                    LearnOptionUi("3", "Seña C"),
-                    LearnOptionUi("4", "Seña D")
-                ),
-                selectedOptionId = null
-            )
+            // REMOVED: Exercises/Minijuegos section - app simplified
+            // Exercises route removed as per app simplification
         }
     }
 }

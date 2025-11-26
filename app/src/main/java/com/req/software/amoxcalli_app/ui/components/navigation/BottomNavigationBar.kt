@@ -31,22 +31,12 @@ fun BottomNavBar(
         BottomNavItem(
             screen = Screen.Home,
             iconRes = R.drawable.ic_home,
-            label = "Home"
+            label = "Inicio"
         ),
-        BottomNavItem(
-            screen = Screen.Learn, // ✅ AGREGAR Learn
-            iconRes = R.drawable.ic_topics, // ✅ Necesitas crear este ícono
-            label = "Aprender"
-        ),
-//        BottomNavItem(
-//            screen = Screen.Quiz,
-//            iconRes = R.drawable.ic_topics,
-//            label = "Temas"
-//        ),
         BottomNavItem(
             screen = Screen.Topics,
             iconRes = R.drawable.ic_search,
-            label = "Buscar"
+            label = "Biblioteca"
         ),
         BottomNavItem(
             screen = Screen.Profile,
