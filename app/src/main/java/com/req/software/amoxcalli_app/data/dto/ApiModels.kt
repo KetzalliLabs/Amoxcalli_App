@@ -230,3 +230,160 @@ data class SignView(
     @SerializedName("viewed_at")
     val viewedAt: String
 )
+
+/**
+ * Sign/Word data from /api/items?type=signs
+ */
+data class SignDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("category_id")
+    val categoryId: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String?,
+
+    @SerializedName("image_url")
+    val imageUrl: String?,
+
+    @SerializedName("video_url")
+    val videoUrl: String?
+)
+
+/**
+ * Category data from /api/items?type=categories
+ */
+data class CategoryDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String?,
+
+    @SerializedName("icon_url")
+    val iconUrl: String?
+)
+
+/**
+ * Exercise data from /api/items/exercises
+ */
+data class ExerciseDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("category_id")
+    val categoryId: String,
+
+    @SerializedName("category_name")
+    val categoryName: String,
+
+    @SerializedName("type")
+    val type: String,
+
+    @SerializedName("question")
+    val question: String,
+
+    @SerializedName("correct_sign_id")
+    val correctSignId: String,
+
+    @SerializedName("correct_sign")
+    val correctSign: SignDto,
+
+    @SerializedName("options")
+    val options: List<ExerciseOptionDto>
+)
+
+/**
+ * Exercise option data
+ */
+data class ExerciseOptionDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String?,
+
+    @SerializedName("image_url")
+    val imageUrl: String?,
+
+    @SerializedName("video_url")
+    val videoUrl: String?,
+
+    @SerializedName("is_correct")
+    val isCorrect: Boolean
+)
+
+/**
+ * Request to record exercise completion
+ */
+data class ExerciseCompletionRequest(
+    @SerializedName("isCorrect")
+    val isCorrect: Boolean,
+
+    @SerializedName("selectedSignId")
+    val selectedSignId: String,
+
+    @SerializedName("timeTaken")
+    val timeTaken: Long,
+
+    @SerializedName("score")
+    val score: Int
+)
+
+/**
+ * Request to record daily quiz
+ */
+data class DailyQuizRequest(
+    @SerializedName("date")
+    val date: String,
+
+    @SerializedName("numQuestions")
+    val numQuestions: Int,
+
+    @SerializedName("correctCount")
+    val correctCount: Int,
+
+    @SerializedName("score")
+    val score: Int,
+
+    @SerializedName("completed")
+    val completed: Boolean
+)
+
+/**
+ * List response wrapper with count
+ */
+data class ListResponse<T>(
+    @SerializedName("success")
+    val success: Boolean,
+
+    @SerializedName("count")
+    val count: Int,
+
+    @SerializedName("data")
+    val data: List<T>
+)
+
+/**
+ * Request to update category progress
+ */
+data class CategoryProgressRequest(
+    @SerializedName("category_id")
+    val categoryId: String,
+
+    @SerializedName("score")
+    val score: Int,
+
+    @SerializedName("status")
+    val status: String // "in_progress", "completed", etc.
+)

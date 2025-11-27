@@ -25,35 +25,40 @@ fun LibraryWordButton(
     onClick: () -> Unit
 ) {
     Surface(
-        shape = RoundedCornerShape(16.dp), // Esquinas un poco más redondeadas
-        shadowElevation = 4.dp,           // Sombra más pronunciada
-        color = Color(0xFF4A90E2),          // Color de fondo primario (ejemplo: azul)
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 2.dp,
+        color = Color(0xFF0D1A3A), // third_color - Dark navy blue
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
-            //.clickable { onClick() }
+            .aspectRatio(1f)
+            .clickable { onClick() }
     ) {
         Box(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
             // Icono de favorito en la esquina superior derecha
-            Text(
-                text = if (isFavorite) "❤️" else "",
-                fontSize = 20.sp, // Un poco más grande para que se note
-                modifier = Modifier
-                    .align(Alignment.TopEnd) // Alineado arriba a la derecha
-                    .padding(top = 4.dp, end = 4.dp)
-            )
+            if (isFavorite) {
+                Text(
+                    text = "❤️",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(2.dp)
+                )
+            }
 
             // Texto centrado
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold, // Letra en negrita para mejor contraste
-                color = Color.White,          // Color de texto blanco
-                modifier = Modifier.align(Alignment.Center)
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+                modifier = Modifier.align(Alignment.Center),
+                maxLines = 2
             )
         }
     }
