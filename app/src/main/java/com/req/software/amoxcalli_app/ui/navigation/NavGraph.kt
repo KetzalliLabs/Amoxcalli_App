@@ -23,7 +23,6 @@ import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
 import com.req.software.amoxcalli_app.ui.screens.exercises.ApiExerciseScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
-import com.req.software.amoxcalli_app.ui.screens.profile.EditProfileScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoriesScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoryDetailScreen
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
@@ -39,7 +38,6 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
-    object EditProfile : Screen("edit_profile")
     object Exercises : Screen("exercises")
     object Categories : Screen("categories")
     object CategoryDetail : Screen("category/{categoryId}") {
@@ -1119,21 +1117,6 @@ fun AppNavigation(
                     onLogoutSuccess = {
                         userStatsViewModel.clearStats()
                         onLogout()
-                    },
-                    onNavigateToEditProfile = {
-                        navController.navigate(Screen.EditProfile.route)
-                    }
-                )
-            }
-
-            // -------------------------------------------------------------
-            // EDIT PROFILE – Pantalla de edición de perfil
-            // -------------------------------------------------------------
-            composable(Screen.EditProfile.route) {
-                val currentUser by authViewModel.currentUser.collectAsState()
-                EditProfileScreen(
-                    onBack = {
-                        navController.popBackStack()
                     }
                 )
             }

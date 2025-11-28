@@ -56,7 +56,8 @@ fun HomeScreen(
                     coins = userStats.coins,
                     energy = userStats.energy,
                     streak = userStats.streak,
-                    experience = userStats.experience
+                    experience = userStats.experience,
+                    medalsCount = medals.size
                 )
             }
         }

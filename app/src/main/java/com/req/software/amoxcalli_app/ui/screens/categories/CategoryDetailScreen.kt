@@ -24,7 +24,7 @@ import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
-import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
 fun CategoryDetailScreen(
@@ -34,19 +34,18 @@ fun CategoryDetailScreen(
     onWordClick: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    libraryViewModel: LibraryViewModel = viewModel()
+    categoryViewModel: CategoryViewModel = viewModel()
 ) {
-    val signs by libraryViewModel.signs.collectAsState()
-    val categories by libraryViewModel.categories.collectAsState()
-    val isLoading by libraryViewModel.isLoading.collectAsState()
-    val error by libraryViewModel.error.collectAsState()
+    val signs by categoryViewModel.currentCategorySigns.collectAsState()
+    val isLoading by categoryViewModel.isLoading.collectAsState()
+    val error by categoryViewModel.error.collectAsState()
 
-    // Find category name
-    val categoryName = categories.find { it.id == categoryId }?.name ?: "Categoría"
+    // Get category name from ViewModel
+    val categoryName = categoryViewModel.getCategoryName(categoryId)
 
     // Load signs for this category
     LaunchedEffect(categoryId) {
-        libraryViewModel.loadSigns(categoryId)
+        categoryViewModel.loadSignsForCategory(categoryId)
     }
 
     Column(
@@ -71,7 +70,8 @@ fun CategoryDetailScreen(
                 coins = coins,
                 energy = energy,
                 streak = streak,
-                experience = experience
+                experience = experience,
+                medalsCount = userStats?.medals?.size ?: 0
             )
         }
 
@@ -198,7 +198,7 @@ fun CategoryDetailScreen(
                                 onWordClick(sign.id)
                                 // Record sign view
                                 authToken?.let { token ->
-                                    libraryViewModel.recordSignView(sign.id, token)
+                                    categoryViewModel.recordSignView(sign.id, token)
                                 }
                             }
                         )

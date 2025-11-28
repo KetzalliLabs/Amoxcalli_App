@@ -85,7 +85,8 @@ fun LibraryScreen(
                 coins = coins,
                 energy = energy,
                 streak = streak,
-                experience = experience
+                experience = experience,
+                medalsCount = userStats?.medals?.size ?: 0
             )
         }
 

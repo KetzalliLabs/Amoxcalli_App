@@ -20,18 +20,18 @@ import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
-import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
 fun CategoriesScreen(
     userStats: UserStatsResponse?,
     onCategoryClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    libraryViewModel: LibraryViewModel = viewModel()
+    categoryViewModel: CategoryViewModel = viewModel()
 ) {
-    val categories by libraryViewModel.categories.collectAsState()
-    val isLoading by libraryViewModel.isLoading.collectAsState()
-    val error by libraryViewModel.error.collectAsState()
+    val categories by categoryViewModel.categories.collectAsState()
+    val isLoading by categoryViewModel.isLoading.collectAsState()
+    val error by categoryViewModel.error.collectAsState()
 
     Column(
         modifier = modifier
@@ -55,7 +55,8 @@ fun CategoriesScreen(
                 coins = coins,
                 energy = energy,
                 streak = streak,
-                experience = experience
+                experience = experience,
+                medalsCount = userStats?.medals?.size ?: 0
             )
         }
 
