@@ -183,6 +183,7 @@ fun CategoryDetailScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
+
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     contentPadding = PaddingValues(vertical = 8.dp),
@@ -193,7 +194,7 @@ fun CategoryDetailScreen(
                     items(signs) { sign ->
                         LibraryWordButton(
                             text = sign.name,
-                            isFavorite = false,
+                            isFavorite = false,     //PONER AQUI CHECK DE SI YA VIÓ LA SEÑA O NO EL USUARIO
                             onClick = {
                                 onWordClick(sign.id)
                                 // Record sign view

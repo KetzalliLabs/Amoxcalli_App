@@ -38,10 +38,14 @@ fun StatsHeader(
 ) {
     // Gradient colors for header
     val gradientColors = listOf(
+        Color(0xFF0D47A1), // Dark Blue
+        Color(0xFF1565C0),
+        Color(0xFF1E88E5),
+        Color(0xFF90CAF9)/*,
         Color(0xFF6A1B9A),
         Color(0xFF8E24AA),
         Color(0xFFAB47BC),
-        Color(0xFFCE93D8)
+        Color(0xFFCE93D8)*/
     )
 
     Box(
