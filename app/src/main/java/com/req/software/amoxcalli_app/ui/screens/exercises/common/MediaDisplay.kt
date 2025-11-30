@@ -18,6 +18,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+//new imports
+import android.net.Uri
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 /**
  * Tipos de media que puede mostrar un ejercicio
@@ -179,6 +188,8 @@ fun GameVideoButton(
 /**
  * Placeholder temporal para videos
  */
+
+/*                  OLD VIDEO PLACEHOLDER
 @Composable
 private fun VideoPlaceholder(
     videoUrl: String? = null,
@@ -209,5 +220,74 @@ private fun VideoPlaceholder(
             )
             Text("🔊")
         }
+    }
+
+
+}                    */
+
+@Composable
+private fun VideoPlaceholder(
+    videoUrl: String? = null,
+    modifier: Modifier = Modifier
+) {
+    if (videoUrl.isNullOrEmpty()) {
+        // fallback when no video URL
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFE0E0E0)),
+            contentAlignment = Alignment.Center
+        ) {
+            // Controles de video simulados
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("🎥")
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Reproducir",
+                    tint = Color.Black
+                )
+                Text("🔊")
+            }
+        }
+    } else {
+        val context = LocalContext.current
+        val exoPlayer = remember(videoUrl) {
+            ExoPlayer.Builder(context).build().apply {
+                val mediaItem = MediaItem.fromUri(Uri.parse(videoUrl))
+                setMediaItem(mediaItem)
+                prepare()
+                playWhenReady = true
+            }
+        }
+
+        DisposableEffect(exoPlayer) {
+            onDispose {
+                exoPlayer.release()
+            }
+        }
+
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = true
+                    // optional: adjust controller show timeout etc.
+                }
+            },
+            modifier = modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.Black)
+        )
     }
 }

@@ -22,7 +22,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
+import com.req.software.amoxcalli_app.ui.theme.MainColor
+import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
+// new video imports
+import android.net.Uri
+import androidx.compose.material.icons.filled.SlowMotionVideo
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,11 +52,17 @@ fun WordDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = word?.name ?: "Cargando...",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = word?.name ?: "Cargando...",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp,
+                            color = MainColor
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
@@ -50,6 +70,16 @@ fun WordDetailScreen(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cerrar",
                             tint = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    // 🔹 Invisible icon to balance the layout (keeps title perfectly centered)
+                    IconButton(onClick = {}, enabled = false) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = Color.Transparent
                         )
                     }
                 },
@@ -75,18 +105,19 @@ fun WordDetailScreen(
                     .padding(paddingValues)
                     .background(Color(0xFFF8F6EF))
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Título principal
+                /*
                 Text(
                     text = word.name,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = ThirdColor,
                     textAlign = TextAlign.Center
-                )
+                )*/
 
                 // Card para imagen o video
                 Card(
@@ -116,29 +147,85 @@ fun WordDetailScreen(
                                 )
                             }
                             word.videoUrl != null -> {
-                                // Placeholder para video (por ahora solo texto)
+                                val context = LocalContext.current
+
+                                // --- Video Player ---
+                                val exoPlayer = remember(word.videoUrl) {
+                                    ExoPlayer.Builder(context).build().apply {
+                                        val mediaItem = MediaItem.fromUri(Uri.parse(word.videoUrl))
+                                        setMediaItem(mediaItem)
+                                        prepare()
+                                        playWhenReady = true
+                                        repeatMode = Player.REPEAT_MODE_ONE
+                                    }
+                                }
+
+                                // --- Control States ---
+                                var slowMode by remember { mutableStateOf(false) }
+                                var isPlaying by remember { mutableStateOf(true) }
+                                var loopEnabled by remember { mutableStateOf(true) }
+
+                                DisposableEffect(exoPlayer) {
+                                    onDispose { exoPlayer.release() }
+                                }
+
                                 Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(
-                                        text = "🎥",
-                                        fontSize = 64.sp
+                                    // Video Player View
+                                    AndroidView(
+                                        factory = { ctx ->
+                                            PlayerView(ctx).apply {
+                                                player = exoPlayer
+                                                useController = true
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(280.dp)
                                     )
-                                    Text(
-                                        text = "Video disponible",
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                    Text(
-                                        text = word.name,
-                                        fontSize = 24.sp,
-                                        color = Color.White,
-                                        textAlign = TextAlign.Center
-                                    )
+
+                                    Spacer(modifier = Modifier.height(2.dp))
+
+                                    // --- Control Row ---
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        // SLOW DOWN BUTTON --------------------------------------
+                                        IconButton(
+                                            onClick = {
+                                                slowMode = !slowMode
+                                                exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.SlowMotionVideo,
+                                                contentDescription = "Slow Motion",
+                                                tint = if (slowMode) MainColor else Color.Gray
+                                            )
+                                        }
+
+                                        // LOOP ---------------------------------------------------
+                                        IconButton(
+                                            onClick = {
+                                                loopEnabled = !loopEnabled
+                                                exoPlayer.repeatMode =
+                                                    if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Refresh, // replace with Loop icon later
+                                                contentDescription = "Loop",
+                                                tint = if (loopEnabled) MainColor else Color.Gray
+                                            )
+                                        }
+                                    }
                                 }
                             }
+
                             else -> {
                                 // Placeholder cuando no hay video ni imagen
                                 Text(
@@ -192,13 +279,13 @@ fun WordDetailScreen(
                     Column(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    ) {/*
                         Text(
                             text = "Información",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = ThirdColor
-                        )
+                        )*/
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -220,7 +307,25 @@ fun WordDetailScreen(
                                 color = ThirdColor
                             )
                         }
+
                     }
+                }
+                Button(
+                    onClick = onClose,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Special3Color,
+                        contentColor = MainColor
+                    )
+
+                ) {
+                    Text(
+                        text = "Listo",
+                        fontSize = 27.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -70,7 +70,7 @@ fun CategoriesScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Categorías",
+                text = "Práctica de palabras",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = ThirdColor,
