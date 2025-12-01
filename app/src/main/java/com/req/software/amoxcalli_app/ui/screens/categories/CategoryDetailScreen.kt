@@ -1,73 +1,58 @@
-package com.req.software.amoxcalli_app.ui.screens.library
+package com.req.software.amoxcalli_app.ui.screens.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
-import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
-import com.req.software.amoxcalli_app.ui.components.searchbars.SearchBar as CustomSearchBar
-
-data class LibraryWordUi(
-    val id: String,
-    val name: String,
-    val videoUrl: String?,
-    val imageUrl: String?,
-    val isFavorite: Boolean = false
-)
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
-fun LibraryScreen(
+fun CategoryDetailScreen(
+    categoryId: String,
     userStats: UserStatsResponse?,
     authToken: String?,
     onWordClick: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    libraryViewModel: LibraryViewModel = viewModel()
+    categoryViewModel: CategoryViewModel = viewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    val signs by libraryViewModel.signs.collectAsState()
-    val isLoading by libraryViewModel.isLoading.collectAsState()
-    val error by libraryViewModel.error.collectAsState()
+    val signs by categoryViewModel.currentCategorySigns.collectAsState()
+    val isLoading by categoryViewModel.isLoading.collectAsState()
+    val error by categoryViewModel.error.collectAsState()
 
-    // Map signs to LibraryWordUi
-    val words = signs.map {
-        LibraryWordUi(
-            id = it.id,
-            name = it.name,
-            videoUrl = it.videoUrl,
-            imageUrl = it.imageUrl,
-            isFavorite = false
-        )
-    }
+    // Get category name from ViewModel
+    val categoryName = categoryViewModel.getCategoryName(categoryId)
 
-    val filteredWords = if (searchText.isBlank()) {
-        words
-    } else {
-        words.filter { word ->
-            word.name.contains(searchText, ignoreCase = true)
-        }
+    // Load signs for this category
+    LaunchedEffect(categoryId) {
+        categoryViewModel.loadSignsForCategory(categoryId)
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as Home)
+        // Top header (same style as other screens)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,30 +84,42 @@ fun LibraryScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "Biblioteca de Señas",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = ThirdColor,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            // Back button and title row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = ThirdColor
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = categoryName,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = ThirdColor
+                    )
+                }
+
+                // Spacer to balance the back button
+                Spacer(modifier = Modifier.width(48.dp))
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Explora y aprende nuevas señas",
+                text = "Señas de esta categoría",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Search bar
-            CustomSearchBar(
-                placeholder = "Buscar seña...",
-                value = searchText,
-                onValueChange = { searchText = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -157,7 +154,7 @@ fun LibraryScreen(
                         )
                     }
                 }
-            } else if (filteredWords.isEmpty()) {
+            } else if (signs.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -171,16 +168,16 @@ fun LibraryScreen(
                             fontSize = 48.sp
                         )
                         Text(
-                            text = "No se encontraron señas",
+                            text = "No hay señas en esta categoría",
                             fontSize = 16.sp,
                             color = Color.Gray
                         )
                     }
                 }
             } else {
-                // Words count
+                // Signs count
                 Text(
-                    text = "${filteredWords.size} señas disponibles",
+                    text = "${signs.size} señas disponibles",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -193,15 +190,15 @@ fun LibraryScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredWords) { word ->
+                    items(signs) { sign ->
                         LibraryWordButton(
-                            text = word.name,
+                            text = sign.name,
                             isFavorite = false,
                             onClick = {
-                                onWordClick(word.id)
+                                onWordClick(sign.id)
                                 // Record sign view
                                 authToken?.let { token ->
-                                    libraryViewModel.recordSignView(word.id, token)
+                                    categoryViewModel.recordSignView(sign.id, token)
                                 }
                             }
                         )

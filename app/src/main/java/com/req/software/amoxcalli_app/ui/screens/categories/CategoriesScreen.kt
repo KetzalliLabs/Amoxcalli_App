@@ -1,4 +1,4 @@
-package com.req.software.amoxcalli_app.ui.screens.library
+package com.req.software.amoxcalli_app.ui.screens.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,63 +11,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
-import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
+import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
-import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
-import com.req.software.amoxcalli_app.ui.components.searchbars.SearchBar as CustomSearchBar
-
-data class LibraryWordUi(
-    val id: String,
-    val name: String,
-    val videoUrl: String?,
-    val imageUrl: String?,
-    val isFavorite: Boolean = false
-)
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
-fun LibraryScreen(
+fun CategoriesScreen(
     userStats: UserStatsResponse?,
-    authToken: String?,
-    onWordClick: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    libraryViewModel: LibraryViewModel = viewModel()
+    categoryViewModel: CategoryViewModel = viewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    val signs by libraryViewModel.signs.collectAsState()
-    val isLoading by libraryViewModel.isLoading.collectAsState()
-    val error by libraryViewModel.error.collectAsState()
-
-    // Map signs to LibraryWordUi
-    val words = signs.map {
-        LibraryWordUi(
-            id = it.id,
-            name = it.name,
-            videoUrl = it.videoUrl,
-            imageUrl = it.imageUrl,
-            isFavorite = false
-        )
-    }
-
-    val filteredWords = if (searchText.isBlank()) {
-        words
-    } else {
-        words.filter { word ->
-            word.name.contains(searchText, ignoreCase = true)
-        }
-    }
+    val categories by categoryViewModel.categories.collectAsState()
+    val isLoading by categoryViewModel.isLoading.collectAsState()
+    val error by categoryViewModel.error.collectAsState()
 
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as Home)
+        // Top header (same style as Library and Home)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -100,7 +70,7 @@ fun LibraryScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Biblioteca de Señas",
+                text = "Categorías",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = ThirdColor,
@@ -110,19 +80,10 @@ fun LibraryScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Explora y aprende nuevas señas",
+                text = "Explora señas por categoría",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Search bar
-            CustomSearchBar(
-                placeholder = "Buscar seña...",
-                value = searchText,
-                onValueChange = { searchText = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -157,7 +118,7 @@ fun LibraryScreen(
                         )
                     }
                 }
-            } else if (filteredWords.isEmpty()) {
+            } else if (categories.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -167,43 +128,41 @@ fun LibraryScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "🔍",
+                            text = "📂",
                             fontSize = 48.sp
                         )
                         Text(
-                            text = "No se encontraron señas",
+                            text = "No hay categorías disponibles",
                             fontSize = 16.sp,
                             color = Color.Gray
                         )
                     }
                 }
             } else {
-                // Words count
+                // Categories count
                 Text(
-                    text = "${filteredWords.size} señas disponibles",
+                    text = "${categories.size} categorías disponibles",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+                    columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredWords) { word ->
-                        LibraryWordButton(
-                            text = word.name,
-                            isFavorite = false,
-                            onClick = {
-                                onWordClick(word.id)
-                                // Record sign view
-                                authToken?.let { token ->
-                                    libraryViewModel.recordSignView(word.id, token)
-                                }
-                            }
+                    items(categories) { category ->
+                        PrimaryButton(
+                            text = category.name,
+                            enablePulse = false,
+                            backgroundColor = ThirdColor,
+                            onClick = { onCategoryClick(category.id) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
                         )
                     }
                 }

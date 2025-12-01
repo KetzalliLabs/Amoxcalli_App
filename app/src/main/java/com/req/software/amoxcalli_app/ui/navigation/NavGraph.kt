@@ -23,7 +23,8 @@ import com.req.software.amoxcalli_app.viewmodel.HomeViewModel
 import com.req.software.amoxcalli_app.ui.screens.exercises.ApiExerciseScreen
 import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
-import com.req.software.amoxcalli_app.ui.screens.profile.EditProfileScreen
+import com.req.software.amoxcalli_app.ui.screens.categories.CategoriesScreen
+import com.req.software.amoxcalli_app.ui.screens.categories.CategoryDetailScreen
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 
@@ -37,8 +38,11 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz")
     object Practice : Screen("practice")
     object Profile : Screen("profile")
-    object EditProfile : Screen("edit_profile")
     object Exercises : Screen("exercises")
+    object Categories : Screen("categories")
+    object CategoryDetail : Screen("category/{categoryId}") {
+        fun createRoute(categoryId: String) = "category/$categoryId"
+    }
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
     }
@@ -69,6 +73,7 @@ fun AppNavigation(
             if (currentRoute in listOf(
                     Screen.Home.route,
                     Screen.Topics.route,
+                    Screen.Categories.route,
                     Screen.Profile.route
                 )
             ) {
@@ -169,6 +174,41 @@ fun AppNavigation(
                     userStats = userStats,
                     authToken = authToken,
                     onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // CATEGORIES – Pantalla de categorías
+            // -------------------------------------------------------------
+            composable(Screen.Categories.route) {
+                val userStats by userStatsViewModel.userStats.collectAsState()
+
+                CategoriesScreen(
+                    userStats = userStats,
+                    onCategoryClick = { categoryId ->
+                        navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // CATEGORY DETAIL – Señas filtradas por categoría
+            // -------------------------------------------------------------
+            composable(Screen.CategoryDetail.route) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: return@composable
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
+
+                CategoryDetailScreen(
+                    categoryId = categoryId,
+                    userStats = userStats,
+                    authToken = authToken,
+                    onWordClick = { wordId ->
+                        navController.navigate(Screen.WordDetail.createRoute(wordId))
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
 
@@ -1077,21 +1117,6 @@ fun AppNavigation(
                     onLogoutSuccess = {
                         userStatsViewModel.clearStats()
                         onLogout()
-                    },
-                    onNavigateToEditProfile = {
-                        navController.navigate(Screen.EditProfile.route)
-                    }
-                )
-            }
-
-            // -------------------------------------------------------------
-            // EDIT PROFILE – Pantalla de edición de perfil
-            // -------------------------------------------------------------
-            composable(Screen.EditProfile.route) {
-                val currentUser by authViewModel.currentUser.collectAsState()
-                EditProfileScreen(
-                    onBack = {
-                        navController.popBackStack()
                     }
                 )
             }

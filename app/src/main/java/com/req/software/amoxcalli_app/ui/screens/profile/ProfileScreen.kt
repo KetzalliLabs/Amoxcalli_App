@@ -47,8 +47,7 @@ import kotlin.math.roundToInt
 fun ProfileScreen(
     authViewModel: AuthViewModel = viewModel(),
     userStatsViewModel: UserStatsViewModel = viewModel(),
-    onLogoutSuccess: () -> Unit = {},
-    onNavigateToEditProfile: () -> Unit = {}
+    onLogoutSuccess: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
@@ -61,21 +60,37 @@ fun ProfileScreen(
         authViewModel.loadUserStats(userStatsViewModel)
     }
 
-    Scaffold(
-        topBar = {
-            AnimatedProfileHeader(
-                displayName = currentUser?.displayName ?: "Usuario",
-                experiencePoints = userStats?.attempts?.total ?: 0,
-                coins = currentUser?.coin ?: 0,
-                streak = userStats?.streak?.currentDays ?: 0,
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Top header (same style as other screens)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(ThirdColor)
+                .padding(top = 12.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Extract values from UserStatsResponse
+            val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
+            val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
+            val streak = userStats?.streak?.currentDays ?: 0
+            val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
+
+            com.req.software.amoxcalli_app.ui.components.headers.StatsHeader(
+                coins = coins,
+                energy = energy,
+                streak = streak,
+                experience = experience,
                 medalsCount = userStats?.medals?.size ?: 0
             )
         }
-    ) { paddingValues ->
+
+        // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .background(MainColor)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -338,42 +353,6 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Botón de Configuración
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .shadow(3.dp, RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                onClick = { onNavigateToEditProfile() }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Configuración",
-                        tint = ThirdColor,
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = "Configuración",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = ThirdColor
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Botón de Cerrar Sesión
             Button(
