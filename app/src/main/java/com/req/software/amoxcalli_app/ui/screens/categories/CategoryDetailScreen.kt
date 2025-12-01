@@ -188,6 +188,7 @@ fun CategoryDetailScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
+
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     contentPadding = PaddingValues(vertical = 8.dp),

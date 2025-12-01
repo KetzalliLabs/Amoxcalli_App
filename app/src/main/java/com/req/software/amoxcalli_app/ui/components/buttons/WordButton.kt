@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.req.software.amoxcalli_app.ui.theme.MainColor
 
 // Nuevo Composable para el botón en LibraryScreen
 @Composable
@@ -33,7 +34,7 @@ fun LibraryWordButton(
         color = Color(0xFF0D1A3A), // third_color - Dark navy blue
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .aspectRatio(1.35f)
             .clickable { onClick() }
     ) {
         Box(
@@ -43,8 +44,10 @@ fun LibraryWordButton(
             contentAlignment = Alignment.Center
         ) {
             // Icono de favorito en la esquina superior derecha
-            if (onFavoriteClick != null) {
-                Box(
+            if (isFavorite) {
+                Text(
+                    text = "✅",
+                    fontSize = 16.sp,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(2.dp)
@@ -67,7 +70,7 @@ fun LibraryWordButton(
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = MainColor,
                 modifier = Modifier.align(Alignment.Center),
                 maxLines = 2
             )

@@ -116,4 +116,7 @@ dependencies {
     // Saved State for ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2")
 
+    // ExoPlayer Dependencies (To play video)
+    implementation("androidx.media3:media3-exoplayer:1.1.1")
+    implementation("androidx.media3:media3-ui:1.1.1")
 }
