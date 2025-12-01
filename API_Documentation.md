@@ -15,6 +15,7 @@ Mexican Sign Language Learning Platform REST API
 - [Exercises Endpoints](#exercises-endpoints)
 - [User Endpoints](#user-endpoints)
 - [Error Responses](#error-responses)
+- [Database Documentation](#database-documentation)
 
 ---
 
@@ -217,6 +218,50 @@ Authorization: Bearer <firebase_token>
 
 ---
 
+### GET `/api/auth/me/signs/views` 🔒
+
+Get signs viewed by the authenticated user grouped by category with progress information
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "category_id": "uuid",
+      "category_name": "Abecedario",
+      "viewed_count": 15,
+      "total_count": 27,
+      "score": 55,
+      "sign_ids": ["uuid1", "uuid2", "uuid3"]
+    },
+    {
+      "category_id": "uuid",
+      "category_name": "Números",
+      "viewed_count": 10,
+      "total_count": 10,
+      "score": 100,
+      "sign_ids": ["uuid4", "uuid5"]
+    }
+  ]
+}
+```
+
+**Response Fields:**
+- `category_id`: UUID of the category
+- `category_name`: Name of the category
+- `viewed_count`: Number of unique signs viewed in this category
+- `total_count`: Total number of signs in this category
+- `score`: Progress percentage (0-100) for this category
+- `sign_ids`: Array of viewed sign UUIDs
+
+---
+
 ### POST `/api/auth/me/exercises/:exerciseId/complete` 🔒
 
 Record an exercise completion/attempt
@@ -275,6 +320,173 @@ Authorization: Bearer <firebase_token>
 {
   "success": true,
   "message": "Daily quiz recorded"
+}
+```
+
+---
+
+### POST `/api/auth/me/favorites/:signId` 🔒
+
+Add a sign to user's favorites
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sign added to favorites",
+  "id": "uuid"
+}
+```
+
+---
+
+### DELETE `/api/auth/me/favorites/:signId` 🔒
+
+Remove a sign from user's favorites
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Sign removed from favorites"
+}
+```
+
+---
+
+### GET `/api/auth/me/favorites` 🔒
+
+Get user's favorite signs
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Hola",
+      "description": "Greeting sign",
+      "image_url": "https://...",
+      "video_url": "https://...",
+      "created_at": "2025-11-25T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### GET `/api/auth/medals`
+
+Get all available medals (public)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "First Steps",
+      "description": "Complete your first exercise",
+      "icon_url": "https://...",
+      "condition_type": "stat",
+      "condition_value": 1
+    }
+  ]
+}
+```
+
+---
+
+### GET `/api/auth/me/medals` 🔒
+
+Get medals earned by the authenticated user
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "user_medal_id": "uuid",
+      "medal_id": "uuid",
+      "name": "First Steps",
+      "description": "Complete your first exercise",
+      "icon_url": "https://...",
+      "achieved_at": "2025-11-25T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### POST `/api/auth/me/medals/:medalId/claim` 🔒
+
+Claim a medal (user must meet conditions)
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Medal awarded"
+}
+```
+
+**Error (conditions not met):**
+```json
+{
+  "success": false,
+  "message": "Medal conditions not met",
+  "required": 10,
+  "current": 5,
+  "condition": {...}
+}
+```
+
+---
+
+### POST `/api/auth/users/:uid/medals/:medalId` 🔒 Admin Only
+
+Award a medal to a user (Admin only)
+
+**Headers:**
+```
+Authorization: Bearer <firebase_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Medal awarded to user"
 }
 ```
 
@@ -691,6 +903,113 @@ Get exercises with complete details (optimized for Android)
 
 ---
 
+### GET `/api/items/exercises/:id/quiz`
+
+Get a single exercise with correct sign and 3 random incorrect options
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "exercise": {
+      "id": "uuid",
+      "category_id": "uuid",
+      "category_name": "Abecedario",
+      "type": "multiple_choice",
+      "prompt": "¿Cuál es la seña para la letra A?",
+      "correct_sign_id": "uuid",
+      "structure_type": null
+    },
+    "correct": {
+      "id": "uuid",
+      "name": "Letra A",
+      "description": "...",
+      "image_url": "https://...",
+      "video_url": "https://..."
+    },
+    "incorrect": [
+      {
+        "id": "uuid",
+        "name": "Letra B",
+        "description": "...",
+        "image_url": "https://...",
+        "video_url": "https://..."
+      }
+    ],
+    "options": [
+      // Shuffled array of correct + incorrect signs
+    ]
+  }
+}
+```
+
+---
+
+### POST `/api/items/exercises/generate-quiz`
+
+Generate a quiz with multiple exercises
+
+**Request Body:**
+```json
+{
+  "mode": "category",
+  "count": 10,
+  "category_id": "uuid"
+}
+```
+
+**Mode Options:**
+- `"category"` - Questions from specific category (requires `category_id`)
+- `"mixed"` - Random questions from all categories
+- `"custom"` - Specific exercises (requires `exercise_ids` array)
+
+**Request Body (Custom mode):**
+```json
+{
+  "mode": "custom",
+  "count": 5,
+  "exercise_ids": ["uuid1", "uuid2", "uuid3"]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "questions": [
+      {
+        "exercise": {
+          "id": "uuid",
+          "category_id": "uuid",
+          "category_name": "Abecedario",
+          "type": "multiple_choice",
+          "prompt": "Question text",
+          "correct_sign_id": "uuid",
+          "structure_type": null
+        },
+        "correct": {
+          "id": "uuid",
+          "name": "Correct answer",
+          "description": "...",
+          "image_url": "https://...",
+          "video_url": "https://..."
+        },
+        "incorrect": [
+          // Array of incorrect options
+        ],
+        "options": [
+          // Shuffled array of all options
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
 ### POST `/api/items/exercises` 🔒
 
 Create a new exercise with options
@@ -852,6 +1171,299 @@ Update user avatar
 - **Health Check:** `GET /api/health`
 - **API Info:** `GET /api`
 - **GitHub:** [https://github.com/KetzalliLabs](https://github.com/KetzalliLabs)
+
+---
+
+## Database Documentation
+
+### Database Information
+
+**Database Type:** PostgreSQL 12+  
+**Connection Pool:** pg (node-postgres)  
+**Total Tables:** 17
+
+### Connection Configuration
+
+```typescript
+// src/config/database.ts
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+export default pool;
+```
+
+### Environment Variables
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=amoxcalli_db
+```
+
+---
+
+### Database Schema
+
+The database consists of **17 tables** organized into **5 main categories**:
+
+#### 👤 User & Authentication (3 tables)
+
+**roles**
+```sql
+id uuid PRIMARY KEY
+name varchar(50)
+description text
+```
+User role definitions (admin, user)
+
+**users**
+```sql
+id uuid PRIMARY KEY
+firebase_uid varchar(128)
+role_id uuid → roles(id)
+display_name varchar(100)
+email varchar(255)
+avatar_url varchar(255)
+join_date timestamp
+```
+User profiles and authentication data
+
+**user_favorite_signs**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+sign_id uuid → signs(id)
+created_at timestamp
+UNIQUE (user_id, sign_id)
+```
+User's favorite signs
+
+---
+
+#### ✋ Content Management (3 tables)
+
+**categories**
+```sql
+id uuid PRIMARY KEY
+name varchar(1000)
+icon_url varchar(255)
+```
+Sign language categories (Alphabet, Numbers, Greetings, etc.)
+
+**signs**
+```sql
+id uuid PRIMARY KEY
+category_id uuid → categories(id)
+name varchar(100)
+description text
+image_url varchar(255)
+video_url varchar(255)
+```
+Mexican Sign Language signs with media
+
+**exercises**
+```sql
+id uuid PRIMARY KEY
+category_id uuid → categories(id)
+type varchar(50)
+prompt text
+correct_sign_id uuid → signs(id)
+structure_type varchar(20)
+```
+Learning exercises and quizzes
+
+---
+
+#### 📊 Statistics & Analytics (2 tables)
+
+**stats**
+```sql
+id uuid PRIMARY KEY
+name varchar(50)
+description text
+category varchar(50)
+max_limit integer
+default_max integer
+```
+Global stat definitions (EXP, coins, signs_viewed, exercises_completed, etc.)
+
+**user_stats**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+stat_id uuid → stats(id)
+current_value integer
+max_value integer
+last_update timestamp
+```
+User statistic values
+
+---
+
+#### 🎯 Activity Tracking (4 tables)
+
+**user_sign_views**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+sign_id uuid → signs(id)
+viewed_at timestamp
+```
+Track which signs users have viewed
+
+**attempts**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+exercise_id uuid → exercises(id)
+selected_sign_id uuid → signs(id)
+is_correct boolean
+created_at timestamp
+```
+Quiz and exercise attempt history
+
+**user_exercise_history**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+exercise_id uuid → exercises(id)
+completed_at timestamp
+```
+Exercise completion timestamps
+
+**daily_quiz_history**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+score integer
+completed boolean
+date date
+```
+Daily quiz completion records
+
+---
+
+#### 🏆 Gamification (5 tables)
+
+**streaks**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+current_days integer
+best_days integer
+last_check date
+```
+Daily login streak tracking
+
+**progress**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+category_id uuid → categories(id)
+score integer
+updated_at timestamp
+UNIQUE (user_id, category_id)
+```
+User progress per category
+
+**medals**
+```sql
+id uuid PRIMARY KEY
+name varchar(100)
+description text
+icon_url varchar(255)
+condition_type varchar(50)
+condition_value integer
+```
+Achievement medal definitions
+
+**medal_conditions**
+```sql
+id uuid PRIMARY KEY
+medal_id uuid → medals(id) ON DELETE CASCADE
+source_type varchar(50)
+stat_id uuid
+source_key varchar(100)
+operator varchar(10) DEFAULT '>='
+threshold integer
+```
+Medal unlock conditions (can reference stats or streaks)
+
+**user_medals**
+```sql
+id uuid PRIMARY KEY
+user_id uuid → users(id)
+medal_id uuid → medals(id)
+achieved_at timestamp
+UNIQUE (user_id, medal_id)
+```
+Medals earned by users
+
+---
+
+### Entity Relationships
+
+| Relationship | Type | Description |
+|-------------|------|-------------|
+| users → roles | Many-to-One | Each user has one role |
+| signs → categories | Many-to-One | Each sign belongs to one category |
+| exercises → categories | Many-to-One | Each exercise belongs to one category |
+| exercises → signs | Many-to-One | Each exercise has one correct sign |
+| user_medals → users, medals | Many-to-Many | Users can earn multiple medals |
+| progress → users, categories | Many-to-Many | Track progress per user per category |
+| attempts → users, exercises | Many-to-Many | Track all quiz attempts |
+| user_favorite_signs → users, signs | Many-to-Many | Users can favorite multiple signs |
+
+---
+
+### Database Setup
+
+#### 1. Create Database
+```bash
+createdb amoxcalli_db
+```
+
+#### 2. Run Schema
+```bash
+psql -d amoxcalli_db -f Database/AmoxcalliDB.sql
+```
+
+#### 3. Configure Environment Variables
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=amoxcalli_db
+```
+
+#### 4. Create First Admin
+```bash
+npm run admin:create
+```
+
+---
+
+### Key Features
+
+- **UUID Primary Keys:** All tables use UUIDs for primary keys via `gen_random_uuid()`
+- **Foreign Key Constraints:** Enforced referential integrity across all relationships
+- **Unique Constraints:** Prevent duplicate favorites, medals, and progress entries
+- **Cascade Deletes:** Medal conditions are deleted when parent medal is removed
+- **Timestamps:** Automatic tracking of creation and update times
+- **Indexes:** Optimized queries on frequently accessed columns (e.g., `idx_user_favorite_signs_user_id`)
 
 ---
 

@@ -11,9 +11,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.req.software.amoxcalli_app.data.dto.UserRegistrationRequest
 import com.req.software.amoxcalli_app.data.dto.UserResponse
+import com.req.software.amoxcalli_app.domain.model.UserRole
 import com.req.software.amoxcalli_app.network.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -29,6 +31,12 @@ class AuthViewModel : ViewModel() {
 
     private val _authToken = MutableStateFlow<String?>(null)
     val authToken: StateFlow<String?> = _authToken
+
+    private val _userRole = MutableStateFlow<UserRole>(UserRole.USER)
+    val userRole: StateFlow<UserRole> = _userRole.asStateFlow()
+
+    private val _isAdmin = MutableStateFlow(false)
+    val isAdmin: StateFlow<Boolean> = _isAdmin.asStateFlow()
 
     init {
         // No cargar automáticamente usuario para forzar login manual cada vez
@@ -51,6 +59,8 @@ class AuthViewModel : ViewModel() {
                 _currentUser.value = null
                 _authState.value = AuthState.Idle
                 _authToken.value = null
+                _userRole.value = UserRole.USER
+                _isAdmin.value = false
 
                 // Cerrar sesión de Google Sign-In para forzar selección de cuenta en próximo login
                 googleSignInClient?.signOut()
@@ -62,6 +72,8 @@ class AuthViewModel : ViewModel() {
                 _currentUser.value = null
                 _authState.value = AuthState.Idle
                 _authToken.value = null
+                _userRole.value = UserRole.USER
+                _isAdmin.value = false
                 auth.signOut()
             }
         }
@@ -107,6 +119,11 @@ class AuthViewModel : ViewModel() {
 
                 if (response.success && response.data != null) {
                     _currentUser.value = response.data
+
+                    // Set user role from backend response
+                    val role = UserRole.fromId(response.data.roleId)
+                    _userRole.value = role
+                    _isAdmin.value = UserRole.isAdmin(response.data.roleId)
 
                     // Get Firebase ID token for subsequent API calls
                     try {

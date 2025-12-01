@@ -44,6 +44,11 @@ fun BottomNavBar(
             label = "Categorías"
         ),
         BottomNavItem(
+            screen = Screen.Favorites,
+            iconRes = R.drawable.ic_favorites,
+            label = "Favoritos"
+        ),
+        BottomNavItem(
             screen = Screen.Profile,
             iconRes = R.drawable.ic_profile,
             label = "Perfil"

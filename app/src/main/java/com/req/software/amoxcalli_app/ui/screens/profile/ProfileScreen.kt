@@ -47,12 +47,15 @@ import kotlin.math.roundToInt
 fun ProfileScreen(
     authViewModel: AuthViewModel = viewModel(),
     userStatsViewModel: UserStatsViewModel = viewModel(),
-    onLogoutSuccess: () -> Unit = {}
+    onLogoutSuccess: () -> Unit = {},
+    onNavigateToAdmin: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
     val userStats by userStatsViewModel.userStats.collectAsState()
     val isLoading by userStatsViewModel.isLoading.collectAsState()
+    val isAdmin by authViewModel.isAdmin.collectAsState()
+    val userRole by authViewModel.userRole.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Load stats when screen appears
@@ -353,6 +356,46 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de Panel de Administración (solo para admin/superadmin)
+            if (isAdmin) {
+                Button(
+                    onClick = onNavigateToAdmin,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .height(60.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF6B5B95),
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 8.dp
+                    )
+                ) {
+                    Text(
+                        text = "🛡️",
+                        fontSize = 24.sp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Panel de Administración",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = userRole.displayName,
+                            fontSize = 11.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // Botón de Cerrar Sesión
             Button(

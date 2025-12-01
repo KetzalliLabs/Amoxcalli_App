@@ -25,6 +25,7 @@ import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
+import com.req.software.amoxcalli_app.viewmodel.FavoritesViewModel
 
 @Composable
 fun CategoryDetailScreen(
@@ -34,11 +35,13 @@ fun CategoryDetailScreen(
     onWordClick: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    categoryViewModel: CategoryViewModel = viewModel()
+    categoryViewModel: CategoryViewModel = viewModel(),
+    favoritesViewModel: FavoritesViewModel = viewModel()
 ) {
     val signs by categoryViewModel.currentCategorySigns.collectAsState()
     val isLoading by categoryViewModel.isLoading.collectAsState()
     val error by categoryViewModel.error.collectAsState()
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
 
     // Get category name from ViewModel
     val categoryName = categoryViewModel.getCategoryName(categoryId)
@@ -47,6 +50,8 @@ fun CategoryDetailScreen(
     LaunchedEffect(categoryId) {
         categoryViewModel.loadSignsForCategory(categoryId)
     }
+
+    // Favorites load automatically from local storage in ViewModel init
 
     Column(
         modifier = modifier
@@ -193,13 +198,22 @@ fun CategoryDetailScreen(
                     items(signs) { sign ->
                         LibraryWordButton(
                             text = sign.name,
-                            isFavorite = false,
+                            isFavorite = favoriteIds.contains(sign.id),
                             onClick = {
                                 onWordClick(sign.id)
                                 // Record sign view
                                 authToken?.let { token ->
                                     categoryViewModel.recordSignView(sign.id, token)
                                 }
+                            },
+                            onFavoriteClick = {
+                                favoritesViewModel.toggleFavorite(
+                                    signId = sign.id,
+                                    name = sign.name,
+                                    description = sign.description,
+                                    imageUrl = sign.imageUrl,
+                                    videoUrl = sign.videoUrl
+                                )
                             }
                         )
                     }

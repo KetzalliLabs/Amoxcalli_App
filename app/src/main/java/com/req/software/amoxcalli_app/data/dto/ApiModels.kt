@@ -387,3 +387,34 @@ data class CategoryProgressRequest(
     @SerializedName("status")
     val status: String // "in_progress", "completed", etc.
 )
+
+/**
+ * Response when adding a favorite
+ */
+data class FavoriteResponse(
+    @SerializedName("id")
+    val id: String
+)
+
+/**
+ * Favorite sign data from /api/auth/me/favorites
+ */
+data class FavoriteSignDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String?,
+
+    @SerializedName("image_url")
+    val imageUrl: String?,
+
+    @SerializedName("video_url")
+    val videoUrl: String?,
+
+    @SerializedName("created_at")
+    val createdAt: String
+)
