@@ -3,11 +3,13 @@ package com.req.software.amoxcalli_app.ui.components.buttons
 // Agrega este Composable en un archivo apropiado, como /ui/components/buttons/LibraryWordButton.ktpackage com.req.software.amoxcalli_app.ui.components.buttons
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +25,8 @@ import com.req.software.amoxcalli_app.ui.theme.MainColor
 fun LibraryWordButton(
     text: String,
     isFavorite: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onFavoriteClick: (() -> Unit)? = null
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -48,7 +51,17 @@ fun LibraryWordButton(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(2.dp)
-                )
+                        .clickable(
+                            onClick = onFavoriteClick,
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        )
+                ) {
+                    Text(
+                        text = if (isFavorite) "❤️" else "🤍",
+                        fontSize = 16.sp
+                    )
+                }
             }
 
             // Texto centrado
@@ -69,7 +82,7 @@ fun LibraryWordButton(
 @Composable
 fun LibraryWordButtonPreview() {
     Box(modifier = Modifier.padding(16.dp).size(120.dp)) {
-        LibraryWordButton(text = "Hola", isFavorite = true, onClick = {})
+        LibraryWordButton(text = "Hola", isFavorite = true, onClick = {}, onFavoriteClick = {})
     }
 }
 
@@ -77,6 +90,6 @@ fun LibraryWordButtonPreview() {
 @Composable
 fun LibraryWordButtonNotFavoritePreview() {
     Box(modifier = Modifier.padding(16.dp).size(120.dp)) {
-        LibraryWordButton(text = "Adiós", isFavorite = false, onClick = {})
+        LibraryWordButton(text = "Adiós", isFavorite = false, onClick = {}, onFavoriteClick = {})
     }
 }

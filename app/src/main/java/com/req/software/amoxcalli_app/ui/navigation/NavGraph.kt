@@ -25,6 +25,8 @@ import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoriesScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoryDetailScreen
+import com.req.software.amoxcalli_app.ui.screens.favorites.FavoritesScreen
+import com.req.software.amoxcalli_app.ui.screens.admin.AdminScreen
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 
@@ -40,6 +42,8 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object Exercises : Screen("exercises")
     object Categories : Screen("categories")
+    object Favorites : Screen("favorites")
+    object Admin : Screen("admin")
     object CategoryDetail : Screen("category/{categoryId}") {
         fun createRoute(categoryId: String) = "category/$categoryId"
     }
@@ -74,6 +78,7 @@ fun AppNavigation(
                     Screen.Home.route,
                     Screen.Topics.route,
                     Screen.Categories.route,
+                    Screen.Favorites.route,
                     Screen.Profile.route
                 )
             ) {
@@ -187,6 +192,20 @@ fun AppNavigation(
                     userStats = userStats,
                     onCategoryClick = { categoryId ->
                         navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // FAVORITES – Pantalla de favoritos
+            // -------------------------------------------------------------
+            composable(Screen.Favorites.route) {
+                val userStats by userStatsViewModel.userStats.collectAsState()
+
+                FavoritesScreen(
+                    userStats = userStats,
+                    onWordClick = { wordId ->
+                        navController.navigate(Screen.WordDetail.createRoute(wordId))
                     }
                 )
             }
@@ -1117,6 +1136,25 @@ fun AppNavigation(
                     onLogoutSuccess = {
                         userStatsViewModel.clearStats()
                         onLogout()
+                    },
+                    onNavigateToAdmin = {
+                        navController.navigate(Screen.Admin.route)
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // ADMIN – Panel de administración (solo admin/superadmin)
+            // -------------------------------------------------------------
+            composable(Screen.Admin.route) {
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val userRole by authViewModel.userRole.collectAsState()
+
+                AdminScreen(
+                    userStats = userStats,
+                    userRole = userRole,
+                    onBack = {
+                        navController.navigateUp()
                     }
                 )
             }

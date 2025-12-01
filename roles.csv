@@ -1,0 +1,4 @@
+id,name,description
+21ec53cd-4864-4086-b6d4-7f3a27a594a3,user,Regular user
+3f37abbf-da39-4004-b88e-3d082a04ae67,admin,Administrador con acceso completo a todas las funcionalidades y configuraciones del sistema.
+57aa1fa8-adad-41a0-aa1a-002bb8191dd6,superadmin,Superadministrador con privilegios elevados para gestionar administradores y supervisar el sistema en su totalidad.
