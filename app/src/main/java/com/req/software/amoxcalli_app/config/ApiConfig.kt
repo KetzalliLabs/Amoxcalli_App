@@ -17,6 +17,8 @@ object ApiConfig {
      * For Physical Device: Use your computer's local IP (e.g., 192.168.1.100)
      */
     const val BASE_URL = "https://ketzallidbapi-production.up.railway.app/api/"
+    //const val BASE_URL = "http://10.0.2.2:3000/api/"
+
 
     /**
      * API Endpoints (relative to BASE_URL)

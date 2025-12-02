@@ -25,6 +25,8 @@ import com.req.software.amoxcalli_app.viewmodel.SessionState
 /**
  * Exercise screen that fetches data from backend API
  * Uses ExerciseViewModel to handle exercise logic
+ * 
+ * @param categoryId Optional category ID to filter exercises by category
  */
 @Composable
 fun ApiExerciseScreen(
@@ -32,6 +34,7 @@ fun ApiExerciseScreen(
     authToken: String?,
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
+    categoryId: String? = null,
     exerciseViewModel: ExerciseViewModel = viewModel()
 ) {
     val currentExercise by exerciseViewModel.currentExercise.collectAsState()
@@ -43,9 +46,13 @@ fun ApiExerciseScreen(
     val wrongCount by exerciseViewModel.wrongCount.collectAsState()
     val sessionState by exerciseViewModel.sessionState.collectAsState()
 
-    // Load a random exercise when screen starts
-    LaunchedEffect(Unit) {
-        exerciseViewModel.loadRandomExercise()
+    // Load exercises when screen starts (filtered by category if provided)
+    LaunchedEffect(categoryId) {
+        if (categoryId != null) {
+            exerciseViewModel.loadExercises(categoryId)
+        } else {
+            exerciseViewModel.loadRandomExercise()
+        }
     }
 
     // Show game over screen if session ended
@@ -56,7 +63,11 @@ fun ApiExerciseScreen(
             wrongCount = wrongCount,
             onRestart = {
                 exerciseViewModel.reset()
-                exerciseViewModel.loadRandomExercise()
+                if (categoryId != null) {
+                    exerciseViewModel.loadExercises(categoryId)
+                } else {
+                    exerciseViewModel.loadRandomExercise()
+                }
             },
             onExit = onCloseClick
         )
@@ -83,7 +94,13 @@ fun ApiExerciseScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     androidx.compose.material3.Button(
-                        onClick = { exerciseViewModel.loadRandomExercise() }
+                        onClick = {
+                            if (categoryId != null) {
+                                exerciseViewModel.loadExercises(categoryId)
+                            } else {
+                                exerciseViewModel.loadRandomExercise()
+                            }
+                        }
                     ) {
                         Text("Reintentar")
                     }
@@ -160,7 +177,11 @@ fun ApiExerciseScreen(
                                 exerciseViewModel.checkAnswer(authToken)
                             } else {
                                 // Load next question
-                                exerciseViewModel.nextExercise()
+                                if (categoryId != null) {
+                                    exerciseViewModel.nextExercise()
+                                } else {
+                                    exerciseViewModel.loadRandomExercise()
+                                }
                             }
                         },
                         onCloseClick = onCloseClick

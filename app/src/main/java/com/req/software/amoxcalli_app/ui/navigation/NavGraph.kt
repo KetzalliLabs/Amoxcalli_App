@@ -47,6 +47,9 @@ sealed class Screen(val route: String) {
     object CategoryDetail : Screen("category/{categoryId}") {
         fun createRoute(categoryId: String) = "category/$categoryId"
     }
+    object CategoryQuiz : Screen("category/{categoryId}/quiz") {
+        fun createRoute(categoryId: String) = "category/$categoryId/quiz"
+    }
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
     }
@@ -225,7 +228,28 @@ fun AppNavigation(
                     onWordClick = { wordId ->
                         navController.navigate(Screen.WordDetail.createRoute(wordId))
                     },
+                    onQuizClick = {
+                        navController.navigate(Screen.CategoryQuiz.createRoute(categoryId))
+                    },
                     onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // CATEGORY QUIZ – Quiz filtrado por categoría
+            // -------------------------------------------------------------
+            composable(Screen.CategoryQuiz.route) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: return@composable
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
+
+                ApiExerciseScreen(
+                    userStats = userStats,
+                    authToken = authToken,
+                    categoryId = categoryId,
+                    onCloseClick = {
                         navController.popBackStack()
                     }
                 )

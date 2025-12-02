@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.LibraryWordButton
+import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 import com.req.software.amoxcalli_app.viewmodel.FavoritesViewModel
@@ -33,6 +34,7 @@ fun CategoryDetailScreen(
     userStats: UserStatsResponse?,
     authToken: String?,
     onWordClick: (String) -> Unit,
+    onQuizClick: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     categoryViewModel: CategoryViewModel = viewModel(),
@@ -125,6 +127,19 @@ fun CategoryDetailScreen(
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Quiz button
+            PrimaryButton(
+                text = "🎯 Quiz de $categoryName",
+                onClick = onQuizClick,
+                backgroundColor = Color(0xFFFFA726), // Naranja atractivo
+                enablePulse = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
