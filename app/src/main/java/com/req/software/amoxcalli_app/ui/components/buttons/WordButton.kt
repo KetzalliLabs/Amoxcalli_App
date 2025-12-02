@@ -1,6 +1,6 @@
 package com.req.software.amoxcalli_app.ui.components.buttons
 
-// Agrega este Composable en un archivo apropiado, como /ui/components/buttons/LibraryWordButton.ktpackage com.req.software.amoxcalli_app.ui.components.buttons
+// Composable for Library Word Button with favorite functionality
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,9 +44,9 @@ fun LibraryWordButton(
             contentAlignment = Alignment.Center
         ) {
             // Icono de favorito en la esquina superior derecha
-            if (isFavorite) {
+            if (onFavoriteClick != null) {
                 Text(
-                    text = "✅",
+                    text = if (isFavorite) "❤️" else "🤍",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -56,12 +56,7 @@ fun LibraryWordButton(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         )
-                ) {
-                    Text(
-                        text = if (isFavorite) "❤️" else "🤍",
-                        fontSize = 16.sp
-                    )
-                }
+                )
             }
 
             // Texto centrado

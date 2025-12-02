@@ -5,7 +5,8 @@
       "Bash(./gradlew assembleDebug:*)",
       "Bash(find:*)",
       "Bash(adb logcat:*)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew clean:*)",
+      "Bash(./gradlew lintDebug:*)"
     ],
     "deny": [],
     "ask": []
