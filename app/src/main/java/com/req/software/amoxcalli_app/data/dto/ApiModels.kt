@@ -173,6 +173,46 @@ data class Medal(
     val achievedAt: String
 )
 
+/**
+ * Medal information from /api/auth/medals (all available medals)
+ */
+data class MedalInfo(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String,
+
+    @SerializedName("icon_url")
+    val iconUrl: String?
+)
+
+/**
+ * Response from claiming a medal
+ */
+data class MedalClaimResponse(
+    @SerializedName("user_medal_id")
+    val userMedalId: String,
+
+    @SerializedName("medal_id")
+    val medalId: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("description")
+    val description: String,
+
+    @SerializedName("icon_url")
+    val iconUrl: String?,
+
+    @SerializedName("achieved_at")
+    val achievedAt: String
+)
+
 data class Stat(
     @SerializedName("stat_id")
     val statId: String,

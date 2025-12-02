@@ -73,6 +73,10 @@ fun AppNavigation(
     val homeViewModel: HomeViewModel = viewModel()
     val userStatsViewModel: UserStatsViewModel = viewModel()
 
+    // Get user stats and auth token for medal checking
+    val userStats by userStatsViewModel.userStats.collectAsState()
+    val authToken by authViewModel.authToken.collectAsState()
+
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
