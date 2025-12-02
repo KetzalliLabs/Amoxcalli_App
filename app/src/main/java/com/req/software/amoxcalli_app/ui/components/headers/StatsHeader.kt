@@ -81,12 +81,12 @@ fun StatsHeader(
                 )
 
                 // Coins Stat (Cacao)
-                /*AnimatedStatItem(
+                AnimatedStatItem(
                     emoji = "🪙",
                     value = coins.toString(),
                     label = "Cacao",
                     color = Color(0xFFFFF3E0)
-                )*/
+                )
 
                 // Streak Stat
                 AnimatedStatItem(

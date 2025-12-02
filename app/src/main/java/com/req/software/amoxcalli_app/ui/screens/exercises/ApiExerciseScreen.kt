@@ -21,6 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.viewmodel.ExerciseViewModel
 import com.req.software.amoxcalli_app.viewmodel.SessionState
+// Imports   MediaDisplay
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaDisplay
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaType
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 /**
  * Exercise screen that fetches data from backend API
@@ -114,6 +118,12 @@ fun ApiExerciseScreen(
                 val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 20
                 val xp = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
 
+                val mediaType = when {
+                    !exercise.correctSign.videoUrl.isNullOrBlank() -> MediaType.VIDEO
+                    !exercise.correctSign.imageUrl.isNullOrBlank() -> MediaType.IMAGE
+                    else -> MediaType.NONE
+                }
+
                 // Determine question type based on video/image availability
                 val questionType = when {
                     exercise.correctSign.videoUrl != null -> LearnQuestionType.VIDEO_TO_TEXT
@@ -168,15 +178,18 @@ fun ApiExerciseScreen(
 
                     LearnGameScreen(
                         uiState = uiState,
+                        // Le pasamos la información del medio
+                        mediaType = mediaType,
+                        videoUrl = exercise.correctSign.videoUrl,
+                        imageUrl = exercise.correctSign.imageUrl,
+                        // El resto de los parámetros no cambian
                         onOptionSelected = { optionId ->
                             exerciseViewModel.selectAnswer(optionId)
                         },
                         onConfirmClick = {
                             if (answerResult == null) {
-                                // Check answer
                                 exerciseViewModel.checkAnswer(authToken)
                             } else {
-                                // Load next question
                                 if (categoryId != null) {
                                     exerciseViewModel.nextExercise()
                                 } else {
