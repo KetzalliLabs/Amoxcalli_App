@@ -96,12 +96,12 @@ fun LearnGameScreen(
             .background(Color(0xFFF8F6EF)) // main_color
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
     ) {
         // --- SECCIÓN DE LA PREGUNTA (PARTE SUPERIOR) ---
         Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.weight(1.8f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             // Texto de la pregunta
             Text(
@@ -118,13 +118,18 @@ fun LearnGameScreen(
             MediaDisplay(
                 mediaType = mediaType,
                 videoUrl = videoUrl,
-                imageUrl = imageUrl
+                imageUrl = imageUrl,
+                modifier = Modifier.weight(1f)
             )
         }
 
         // --- SECCIÓN DE RESPUESTAS (PARTE MEDIA E INFERIOR) ---
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            // CORRECCIÓN: Le asignamos un peso de 1.
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            // Empujamos el contenido hacia abajo
+            verticalArrangement = Arrangement.Bottom
         ) {
             // Opciones de respuesta (Grid o Column)
             LazyVerticalGrid(

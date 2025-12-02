@@ -1,36 +1,12 @@
 package com.req.software.amoxcalli_app.ui.screens.exercises.common
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-//new imports
-import android.net.Uri
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -41,27 +17,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.req.software.amoxcalli_app.ui.theme.MainColor
-/**
- * Tipos de media que puede mostrar un ejercicio
- */
+
+
 enum class MediaType {
     VIDEO,
     IMAGE,
     NONE
 }
 
-/**
- * Componente que decide automáticamente si mostrar video o imagen
- * según el tipo de media del ejercicio
- */
 @Composable
 fun MediaDisplay(
     mediaType: MediaType,
@@ -69,146 +47,181 @@ fun MediaDisplay(
     videoUrl: String? = null,
     modifier: Modifier = Modifier
 ) {
-    // El Card exterior asegura que el contenido (imagen o video) tenga el mismo borde y fondo.
+    // ✅ PASO 1: ESTADO ELEVADO Y COMPLETO
+    // Se declaran aquí todas las variables de estado para que persistan.
+    val context = LocalContext.current
+
+    val exoPlayer = remember(videoUrl) {
+        if (mediaType == MediaType.VIDEO && videoUrl != null) {
+            ExoPlayer.Builder(context).build().apply {
+                setMediaItem(MediaItem.fromUri(Uri.parse(videoUrl)))
+                prepare()
+                playWhenReady = true // Autoplay
+                repeatMode = Player.REPEAT_MODE_ONE
+            }
+        } else {
+            null
+        }
+    }
+
+    // Estados de los controles
+    var slowMode by remember { mutableStateOf(false) }
+    var loopEnabled by remember { mutableStateOf(true) }
+    var isPlaying by remember(exoPlayer) { mutableStateOf(exoPlayer?.isPlaying ?: false) }
+
+    // Listener para actualizar isPlaying
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onIsPlayingChanged(playing: Boolean) {
+                isPlaying = playing
+            }
+        }
+        exoPlayer?.addListener(listener)
+
+        onDispose {
+            exoPlayer?.removeListener(listener)
+            exoPlayer?.release()
+        }
+    }
+
+    // ✅ PASO 2: CONTENEDOR DE TAMAÑO MÁS GRANDE
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(16f / 9f) // Proporción panorámica para video e imagen
+            // Le damos el 40% de la altura de la pantalla, mucho más grande
+            .fillMaxHeight(0.4f)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Black) // Fondo negro para el reproductor de video
+            .background(Color.Black)
             .border(
                 width = 2.dp,
-                color = Color(0xFFC9CCD1), // special2_color
+                color = Color(0xFFC9CCD1),
                 shape = RoundedCornerShape(16.dp)
             ),
         contentAlignment = Alignment.Center
-    ){
-        when (mediaType) {
-            MediaType.VIDEO -> VideoPlayer(
-                videoUrl = videoUrl,
-                // El modifier fillMaxSize se aplica dentro para que el video llene el Card
-                modifier = Modifier.fillMaxSize()
-            )
-            MediaType.IMAGE -> ImageDisplay(
-                imageUrl = imageUrl,
-                modifier = Modifier.fillMaxSize()
-            )
-            MediaType.NONE -> {
-                // Placeholder si no hay media, para mantener el espacio
-                Text(text = "🖼️", fontSize = 48.sp, color = Color.White)
-            }
-        }
-    }
-}
-
-@Composable
-private fun VideoPlayer(
-    videoUrl: String?,
-    modifier: Modifier = Modifier
-) {
-    if (videoUrl.isNullOrEmpty()) {
-        // Fallback si no hay URL de video
-        Box(
-            modifier = modifier.background(Color(0xFFE0E0E0)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("🎥 Video no disponible", color = Color.Black)
-        }
-        return
-    }
-
-    val context = LocalContext.current
-
-    // --- Video Player ---
-    val exoPlayer = remember(videoUrl) {
-        ExoPlayer.Builder(context).build().apply {
-            val mediaItem = MediaItem.fromUri(Uri.parse(videoUrl))
-            setMediaItem(mediaItem)
-            prepare()
-            playWhenReady = true // Autoplay
-            repeatMode = Player.REPEAT_MODE_ONE // Loop por defecto
-        }
-    }
-
-    // --- Control States ---
-    var slowMode by remember { mutableStateOf(false) }
-    var loopEnabled by remember { mutableStateOf(true) } // Loop activado por defecto
-
-    // Gestiona el ciclo de vida del player
-    DisposableEffect(exoPlayer) {
-        onDispose {
-            exoPlayer.release()
-        }
-    }
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Contenedor del reproductor de video
-        Box(modifier = Modifier.weight(1f)) {
-            AndroidView(
-                factory = { ctx ->
-                    PlayerView(ctx).apply {
-                        player = exoPlayer
-                        // Desactivamos el controlador por defecto para usar los nuestros
-                        useController = false
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-
-        // --- Fila de Controles Personalizados ---
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.6f)) // Fondo semitransparente para los controles
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // --- BOTÓN CÁMARA LENTA ---
-            IconButton(
-                onClick = {
-                    slowMode = !slowMode
-                    exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
+        when (mediaType) {
+            MediaType.VIDEO -> {
+                if (exoPlayer != null) {
+                    VideoPlayer(
+                        exoPlayer = exoPlayer,
+                        slowMode = slowMode,
+                        loopEnabled = loopEnabled,
+                        onSlowModeToggle = {
+                            slowMode = !slowMode
+                            exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
+                        },
+                        onLoopToggle = {
+                            loopEnabled = !loopEnabled
+                            exoPlayer.repeatMode = if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                        },
+                        // ✅ PASO 3: PASAR EVENTO DE PAUSA/PLAY
+                        onPlayPauseToggle = {
+                            if (exoPlayer.isPlaying) {
+                                exoPlayer.pause()
+                            } else {
+                                exoPlayer.play()
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    VideoErrorPlaceholder()
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.SlowMotionVideo,
-                    contentDescription = "Cámara Lenta",
-                    tint = if (slowMode) MainColor else Color.White
-                )
             }
-
-            // --- BOTÓN LOOP ---
-            IconButton(
-                onClick = {
-                    loopEnabled = !loopEnabled
-                    exoPlayer.repeatMode =
-                        if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh, // Usamos Refresh como ícono para loop
-                    contentDescription = "Repetir",
-                    tint = if (loopEnabled) MainColor else Color.White
-                )
-            }
+            MediaType.IMAGE -> ImageDisplay(imageUrl = imageUrl, modifier = Modifier.fillMaxSize())
+            MediaType.NONE -> Text(text = "🖼️", fontSize = 48.sp, color = Color.White)
         }
     }
 }
 
 /**
- * Muestra una imagen desde URL
- * Usa Coil para cargar la imagen
+ * Componente de Video "tonto" que ahora sí replica la interacción de WordDetailScreen.
  */
 @Composable
-fun ImageDisplay(
-    imageUrl: String?,
+private fun VideoPlayer(
+    exoPlayer: ExoPlayer,
+    slowMode: Boolean,
+    loopEnabled: Boolean,
+    onSlowModeToggle: () -> Unit,
+    onLoopToggle: () -> Unit,
+    onPlayPauseToggle: () -> Unit, // Recibe el nuevo evento
     modifier: Modifier = Modifier
 ) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(modifier = Modifier.weight(1f)) {
+            // Video Player View
+            AndroidView(
+                // ✅ PASO 4: HACER EL VIDEO CLICKEABLE PARA PAUSA/PLAY
+                factory = {
+                    PlayerView(it).apply {
+                        player = exoPlayer
+                        // AHORA SÍ HABILITAMOS EL CONTROLADOR NATIVO
+                        useController = true
+                        // Opcional: Ocultar el controlador por defecto y manejar todo manualmente
+                        // useController = false
+                        // setControllerAutoShow(false)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Si queremos un control manual de pausa/play al tocar
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null, // Sin efecto ripple
+                        onClick = onPlayPauseToggle
+                    )
+            )
+        }
+
+        // Fila de controles personalizados
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.6f))
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // BOTÓN CÁMARA LENTA
+            IconButton(onClick = onSlowModeToggle) {
+                Icon(
+                    imageVector = Icons.Default.SlowMotionVideo,
+                    contentDescription = "Cámara Lenta",
+                    // ✅ CORRECCIÓN FINAL: Usar Color.Gray para el estado inactivo
+                    tint = if (slowMode) MainColor else Color.Gray
+                )
+            }
+
+            // BOTÓN LOOP
+            IconButton(onClick = onLoopToggle) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Repetir",
+                    // ✅ CORRECCIÓN FINAL: Usar Color.Gray para el estado inactivo
+                    tint = if (loopEnabled) MainColor else Color.Gray
+                )
+            }
+        }
+    }
+}
+
+// ... (El resto del archivo: VideoErrorPlaceholder, ImageDisplay, etc., no cambian) ...
+
+@Composable
+private fun VideoErrorPlaceholder(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize().background(Color(0xFFE0E0E0)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("🎥 Video no disponible", color = Color.Black)
+    }
+}
+
+@Composable
+fun ImageDisplay(imageUrl: String?, modifier: Modifier = Modifier) {
     if (!imageUrl.isNullOrEmpty()) {
         AsyncImage(
             model = imageUrl,
@@ -217,15 +230,10 @@ fun ImageDisplay(
             contentScale = ContentScale.Fit
         )
     } else {
-        // Placeholder si la URL de la imagen es nula pero el tipo es IMAGE
         Text(text = "🖼️", fontSize = 48.sp)
     }
 }
 
-/**
- * Botón de opción con IMAGEN
- * Para ejercicios donde las opciones son imágenes de señas
- */
 @Composable
 fun GameImageButton(
     imageUrl: String?,
@@ -239,12 +247,10 @@ fun GameImageButton(
             .clip(RoundedCornerShape(16.dp))
             .border(
                 width = 3.dp,
-                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1),
                 shape = RoundedCornerShape(16.dp)
             )
-            .background(
-                if (selected) Color(0xFFE8F5E9) else Color.White
-            )
+            .background(if (selected) Color(0xFFE8F5E9) else Color.White)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -252,9 +258,7 @@ fun GameImageButton(
             AsyncImage(
                 model = imageUrl,
                 contentDescription = "Opción de seña",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
+                modifier = Modifier.fillMaxSize().padding(8.dp),
                 contentScale = ContentScale.Fit
             )
         } else {
@@ -263,11 +267,6 @@ fun GameImageButton(
     }
 }
 
-
-/**
- * Botón de opción con VIDEO
- * Para ejercicios donde las opciones son videos de señas
- */
 
 @Composable
 fun GameVideoButton(
@@ -282,17 +281,13 @@ fun GameVideoButton(
             .clip(RoundedCornerShape(16.dp))
             .border(
                 width = 3.dp,
-                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1), // special3_color : special2_color
+                color = if (selected) Color(0xFF004225) else Color(0xFFC9CCD1),
                 shape = RoundedCornerShape(16.dp)
             )
-            .background(
-                if (selected) Color(0xFFE8F5E9) else Color(0xFFF8F6EF) // main_color
-            )
+            .background(if (selected) Color(0xFFE8F5E9) else Color(0xFFF8F6EF))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        // Se mantiene el placeholder simple para los botones de opción.
-        // Implementar un mini-reproductor aquí sería computacionalmente costoso.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -303,117 +298,7 @@ fun GameVideoButton(
                 modifier = Modifier.size(32.dp),
                 tint = Color.Black
             )
-            Text(
-                text = "Video",
-                fontSize = 10.sp,
-                color = Color.Gray
-            )
+            Text(text = "Video", fontSize = 10.sp, color = Color.Gray)
         }
-    }
-}
-/**
- * Placeholder temporal para videos
- */
-
-/*                  OLD VIDEO PLACEHOLDER
-@Composable
-private fun VideoPlaceholder(
-    videoUrl: String? = null,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFE0E0E0)),
-        contentAlignment = Alignment.Center
-    ) {
-        // Controles de video simulados
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("🎥")
-            Icon(
-                imageVector = Icons.Default.PlayArrow,
-                contentDescription = "Reproducir",
-                tint = Color.Black
-            )
-            Text("🔊")
-        }
-    }
-
-
-}                    */
-
-@Composable
-private fun VideoPlaceholder(
-    videoUrl: String? = null,
-    modifier: Modifier = Modifier
-) {
-    if (videoUrl.isNullOrEmpty()) {
-        // fallback when no video URL
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFE0E0E0)),
-            contentAlignment = Alignment.Center
-        ) {
-            // Controles de video simulados
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("🎥")
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Reproducir",
-                    tint = Color.Black
-                )
-                Text("🔊")
-            }
-        }
-    } else {
-        val context = LocalContext.current
-        val exoPlayer = remember(videoUrl) {
-            ExoPlayer.Builder(context).build().apply {
-                val mediaItem = MediaItem.fromUri(Uri.parse(videoUrl))
-                setMediaItem(mediaItem)
-                prepare()
-                playWhenReady = true
-            }
-        }
-
-        DisposableEffect(exoPlayer) {
-            onDispose {
-                exoPlayer.release()
-            }
-        }
-
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    player = exoPlayer
-                    useController = true
-                    // optional: adjust controller show timeout etc.
-                }
-            },
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black)
-        )
     }
 }
