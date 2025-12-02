@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 /**
  * Animated header that shows user statistics (XP, Cacao, Streak, Medals)
  * Used across all screens in the app
+ * Now supports local XP tracking and animated value changes
  */
 @Composable
 fun StatsHeader(
@@ -34,8 +35,12 @@ fun StatsHeader(
     streak: Int,
     experience: Int,
     medalsCount: Int = 0,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    useLocalXP: Boolean = true,  // Use local XP tracking instead of backend value
+    localXP: Int? = null  // Optional override for local XP value
 ) {
+    // Use local XP if provided and enabled, otherwise use backend value
+    val displayXP = if (useLocalXP && localXP != null) localXP else experience
     // Gradient colors for header
     val gradientColors = listOf(
         Color(0xFF0D47A1), // Dark Blue
@@ -75,7 +80,7 @@ fun StatsHeader(
                 // XP Stat
                 AnimatedStatItem(
                     emoji = "⭐",
-                    value = experience.toString(),
+                    value = displayXP.toString(),
                     label = "XP",
                     color = Color(0xFFFFF8E1)
                 )

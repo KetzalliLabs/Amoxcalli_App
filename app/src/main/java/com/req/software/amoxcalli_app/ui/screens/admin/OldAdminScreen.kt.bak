@@ -2,6 +2,8 @@ package com.req.software.amoxcalli_app.ui.screens.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,10 +29,14 @@ import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 import com.req.software.amoxcalli_app.viewmodel.MedalViewModel
 import com.req.software.amoxcalli_app.ui.components.medals.MedalCelebrationDialog
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
+import com.req.software.amoxcalli_app.ui.components.notifications.StatsNotification
+import androidx.compose.runtime.remember
 
 /**
  * Temporary Admin Screen
  * Only accessible to users with admin or superadmin roles
+ * Includes SUPERADMIN testing tools for XP, Streaks, and Medals
  */
 @Composable
 fun AdminScreen(
@@ -38,10 +44,15 @@ fun AdminScreen(
     userRole: UserRole,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    medalViewModel: MedalViewModel = viewModel()
+    medalViewModel: MedalViewModel = viewModel(),
+    userStatsViewModel: UserStatsViewModel = viewModel()
 ) {
     // Observe medal celebration state
     val newlyEarnedMedal by medalViewModel.newlyEarnedMedal.collectAsState()
+
+    // Observe notification state
+    val notification by userStatsViewModel.notification.collectAsState()
+    val localXP by userStatsViewModel.localXP.collectAsState()
 
     // Show medal celebration dialog when a medal is earned
     newlyEarnedMedal?.let { medal ->
@@ -53,10 +64,12 @@ fun AdminScreen(
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
+    Box(
+        modifier = modifier.fillMaxSize()
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
         // Top header with stats
         Column(
             modifier = Modifier
@@ -99,7 +112,9 @@ fun AdminScreen(
                 energy = energy,
                 streak = streak,
                 experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
+                medalsCount = userStats?.medals?.size ?: 0,
+                useLocalXP = true,
+                localXP = localXP
             )
         }
 
@@ -108,10 +123,12 @@ fun AdminScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF8F6EF))
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
             // Admin badge icon
             Text(
                 text = "🛡️",
@@ -213,6 +230,81 @@ fun AdminScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // XP testing controls
+                Text(
+                    text = "XP Local: $localXP",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ThirdColor,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            userStatsViewModel.awardCorrectAnswerXP()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFD700)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+10 XP", color = Color.Black)
+                    }
+
+                    Button(
+                        onClick = {
+                            userStatsViewModel.awardExerciseCompletionXP()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFA500)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+50 XP", color = Color.Black)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            userStatsViewModel.addXP(100)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+100 XP")
+                    }
+
+                    Button(
+                        onClick = {
+                            userStatsViewModel.resetAllXP()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFD32F2F)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Reset XP")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
                 // Streak testing controls
                 val currentStreak by medalViewModel.currentStreak.collectAsState()
                 val bestStreak by medalViewModel.bestStreak.collectAsState()
@@ -270,7 +362,34 @@ fun AdminScreen(
                 ) {
                     Text("Reset Racha")
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Test notification button
+                Button(
+                    onClick = {
+                        userStatsViewModel.showNotification(
+                            com.req.software.amoxcalli_app.ui.components.notifications.StatsNotifications.streakIncreased(
+                                currentStreak
+                            )
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF6B6B)
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                ) {
+                    Text("Test Streak Notification")
+                }
             }
         }
+        }
+
+        // Notification overlay
+        StatsNotification(
+            notificationState = notification,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
