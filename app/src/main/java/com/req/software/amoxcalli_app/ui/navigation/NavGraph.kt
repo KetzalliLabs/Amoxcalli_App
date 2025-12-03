@@ -32,6 +32,8 @@ import com.req.software.amoxcalli_app.ui.screens.teacher.TeacherDashboardScreen
 import com.req.software.amoxcalli_app.domain.model.UserRole
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
+import com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -75,6 +77,8 @@ fun AppNavigation(
 
     val homeViewModel: HomeViewModel = viewModel()
     val userStatsViewModel: UserStatsViewModel = viewModel()
+    val categoryViewModel: CategoryViewModel = viewModel()
+    val viewedSignsViewModel: ViewedSignsViewModel = viewModel()
 
     // Get user stats and auth token for medal checking
     val userStats by userStatsViewModel.userStats.collectAsState()
@@ -133,7 +137,8 @@ fun AppNavigation(
                         navController.navigate(Quiz.route)
                     },
                     onPracticeClick = {
-                        navController.navigate(Screen.Practice.route)
+                        // Navigate to Categories instead of Practice (shortcut)
+                        navController.navigate(Screen.Categories.route)
                     },
                     onLibraryClick = {
                         navController.navigate(Screen.Topics.route)
@@ -185,10 +190,18 @@ fun AppNavigation(
                 val userStats by userStatsViewModel.userStats.collectAsState()
                 val authToken by authViewModel.authToken.collectAsState()
 
+                // Refresh stats when returning to this screen
+                LaunchedEffect(Unit) {
+                    authToken?.let { token ->
+                        userStatsViewModel.refreshStats(token)
+                    }
+                }
+
                 LibraryScreen(
                     userStats = userStats,
                     authToken = authToken,
-                    onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") }
+                    onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -197,12 +210,21 @@ fun AppNavigation(
             // -------------------------------------------------------------
             composable(Screen.Categories.route) {
                 val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
+
+                // Refresh stats when returning to this screen
+                LaunchedEffect(Unit) {
+                    authToken?.let { token ->
+                        userStatsViewModel.refreshStats(token)
+                    }
+                }
 
                 CategoriesScreen(
                     userStats = userStats,
                     onCategoryClick = { categoryId ->
                         navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
-                    }
+                    },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -211,6 +233,7 @@ fun AppNavigation(
             // -------------------------------------------------------------
             composable(Screen.Favorites.route) {
                 val userStats by userStatsViewModel.userStats.collectAsState()
+
 
                 FavoritesScreen(
                     userStats = userStats,
@@ -228,6 +251,13 @@ fun AppNavigation(
                 val userStats by userStatsViewModel.userStats.collectAsState()
                 val authToken by authViewModel.authToken.collectAsState()
 
+                // Refresh stats when returning to this screen
+                LaunchedEffect(Unit) {
+                    authToken?.let { token ->
+                        userStatsViewModel.refreshStats(token)
+                    }
+                }
+
                 CategoryDetailScreen(
                     categoryId = categoryId,
                     userStats = userStats,
@@ -240,7 +270,9 @@ fun AppNavigation(
                     },
                     onBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel,
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -1220,7 +1252,12 @@ fun AppNavigation(
                     wordId = wordId,
                     onClose = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStats = userStats,
+                    authToken = authToken,
+                    categoryViewModel = categoryViewModel,
+                    userStatsViewModel = userStatsViewModel,
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 

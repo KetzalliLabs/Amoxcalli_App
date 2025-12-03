@@ -21,10 +21,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 import com.req.software.amoxcalli_app.ui.theme.MainColor
+import kotlinx.coroutines.launch
 import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.viewmodel.LibraryViewModel
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 // new video imports
 import android.net.Uri
 import androidx.compose.material.icons.filled.SlowMotionVideo
@@ -43,10 +47,22 @@ import androidx.media3.ui.PlayerView
 fun WordDetailScreen(
     wordId: String,
     onClose: () -> Unit,
-    libraryViewModel: LibraryViewModel = viewModel()
+    libraryViewModel: LibraryViewModel = viewModel(),
+    userStats: UserStatsResponse? = null,
+    authToken: String? = null,
+    categoryViewModel: CategoryViewModel = viewModel(),
+    userStatsViewModel: UserStatsViewModel = viewModel(),
+    viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val signs by libraryViewModel.signs.collectAsState()
     val word = signs.find { it.id == wordId }
+
+    // Get viewed signs from local state
+    val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
+
+    // Check if this sign has been viewed - use local state
+    val isViewed = viewedSignIds.contains(wordId)
+
 
     Scaffold(
         topBar = {
@@ -311,18 +327,25 @@ fun WordDetailScreen(
                     }
                 }
                 Button(
-                    onClick = onClose,
+                    onClick = {
+                        // Mark as viewed locally
+                        if (!isViewed) {
+                            viewedSignsViewModel.markSignAsViewed(wordId)
+                        }
+                        // Close the screen immediately
+                        onClose()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Special3Color,
+                        containerColor = if (isViewed) Color(0xFF4CAF50) else Special3Color,
                         contentColor = MainColor
                     )
 
                 ) {
                     Text(
-                        text = "Listo",
+                        text = if (isViewed) "Ya visto ✓" else "Listo",
                         fontSize = 27.sp,
                         fontWeight = FontWeight.SemiBold,
                     )

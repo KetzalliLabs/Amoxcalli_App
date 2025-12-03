@@ -27,6 +27,7 @@ import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 import com.req.software.amoxcalli_app.viewmodel.FavoritesViewModel
+import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 
 @Composable
 fun CategoryDetailScreen(
@@ -38,12 +39,15 @@ fun CategoryDetailScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     categoryViewModel: CategoryViewModel = viewModel(),
-    favoritesViewModel: FavoritesViewModel = viewModel()
+    favoritesViewModel: FavoritesViewModel = viewModel(),
+    userStatsViewModel: UserStatsViewModel = viewModel(),
+    viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val signs by categoryViewModel.currentCategorySigns.collectAsState()
     val isLoading by categoryViewModel.isLoading.collectAsState()
     val error by categoryViewModel.error.collectAsState()
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
 
     // Get category name from ViewModel
     val categoryName = categoryViewModel.getCategoryName(categoryId)
@@ -212,15 +216,16 @@ fun CategoryDetailScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(signs) { sign ->
+                        // Check if this sign has been viewed - use local state
+                        val isViewed = viewedSignIds.contains(sign.id)
+
                         LibraryWordButton(
                             text = sign.name,
                             isFavorite = favoriteIds.contains(sign.id),
+                            isViewed = isViewed,
                             onClick = {
+                                // Just open the detail screen
                                 onWordClick(sign.id)
-                                // Record sign view
-                                authToken?.let { token ->
-                                    categoryViewModel.recordSignView(sign.id, token)
-                                }
                             },
                             onFavoriteClick = {
                                 favoritesViewModel.toggleFavorite(

@@ -39,13 +39,15 @@ fun LibraryScreen(
     onWordClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     libraryViewModel: LibraryViewModel = viewModel(),
-    favoritesViewModel: FavoritesViewModel = viewModel()
+    favoritesViewModel: FavoritesViewModel = viewModel(),
+    viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     var searchText by remember { mutableStateOf("") }
     val signs by libraryViewModel.signs.collectAsState()
     val isLoading by libraryViewModel.isLoading.collectAsState()
     val error by libraryViewModel.error.collectAsState()
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
 
     // Favorites load automatically from local storage in ViewModel init
 
@@ -199,15 +201,16 @@ fun LibraryScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(filteredWords) { word ->
+                        // Check if this sign has been viewed - use local state
+                        val isViewed = viewedSignIds.contains(word.id)
+
                         LibraryWordButton(
                             text = word.name,
                             isFavorite = favoriteIds.contains(word.id),
+                            isViewed = isViewed,
                             onClick = {
+                                // Just open the detail screen
                                 onWordClick(word.id)
-                                // Record sign view
-                                authToken?.let { token ->
-                                    libraryViewModel.recordSignView(word.id, token)
-                                }
                             },
                             onFavoriteClick = {
                                 favoritesViewModel.toggleFavorite(

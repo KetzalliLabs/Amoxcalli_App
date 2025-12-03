@@ -26,12 +26,13 @@ fun LibraryWordButton(
     text: String,
     isFavorite: Boolean,
     onClick: () -> Unit,
-    onFavoriteClick: (() -> Unit)? = null
+    onFavoriteClick: (() -> Unit)? = null,
+    isViewed: Boolean = false
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp,
-        color = Color(0xFF0D1A3A), // third_color - Dark navy blue
+        color = if (isViewed) Color(0xFF4CAF50) else Color(0xFF1E3A5F), // Brighter green if viewed, lighter navy if not
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.35f)
@@ -56,6 +57,19 @@ fun LibraryWordButton(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         )
+                )
+            }
+
+            // Checkmark indicator for viewed signs (bottom-left corner)
+            if (isViewed) {
+                Text(
+                    text = "✓",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(2.dp)
                 )
             }
 
