@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,10 +34,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.GameTextButton
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaDisplay
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaDisplay
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaType
 
 // -----------------------------------------------------------------------------
 //  MODELOS DE UI
@@ -68,6 +78,85 @@ data class LearnGameUiState(
 //  SCREEN PRINCIPAL
 // -----------------------------------------------------------------------------
 
+@Composable
+fun LearnGameScreen(
+    uiState: LearnGameUiState,
+    // ✅ 1. AÑADIMOS NUEVOS PARÁMETROS
+    mediaType: MediaType,
+    videoUrl: String?,
+    imageUrl: String?,
+    // -------------------------
+    onOptionSelected: (String) -> Unit,
+    onConfirmClick: () -> Unit,
+    onCloseClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8F6EF)) // main_color
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // --- SECCIÓN DE LA PREGUNTA (PARTE SUPERIOR) ---
+        Column(
+            modifier = Modifier.weight(1.8f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Texto de la pregunta
+            Text(
+                text = uiState.promptText,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = ThirdColor,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ✅ 2. LLAMADA A MediaDisplay (EL LUGAR CORRECTO)
+            // Reemplaza cualquier placeholder o `when` que tuvieras aquí.
+            MediaDisplay(
+                mediaType = mediaType,
+                videoUrl = videoUrl,
+                imageUrl = imageUrl,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        // --- SECCIÓN DE RESPUESTAS (PARTE MEDIA E INFERIOR) ---
+        Column(
+            // CORRECCIÓN: Le asignamos un peso de 1.
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            // Empujamos el contenido hacia abajo
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            // Opciones de respuesta (Grid o Column)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(vertical = 24.dp)
+            ) {
+                items(uiState.options) { option ->
+                    GameTextButton( // O GameImageButton si usas imágenes
+                        text = option.text,
+                        selected = uiState.selectedOptionId == option.id,
+                        onClick = { onOptionSelected(option.id) }
+                    )
+                }
+            }
+
+            // Botón de Confirmar/Siguiente
+            PrimaryButton(
+                text = "Confirmar", // O "Siguiente" dependiendo del estado
+                onClick = onConfirmClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+/*
 @Composable
 fun LearnGameScreen(
     uiState: LearnGameUiState,
@@ -135,7 +224,7 @@ fun LearnGameScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
-}
+}*/
 
 // -----------------------------------------------------------------------------
 //  CABECERA
