@@ -192,7 +192,8 @@ fun AppNavigation(
             composable(Screen.Topics.route) {
                 LibraryScreen(
                     onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") },
-                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -204,7 +205,8 @@ fun AppNavigation(
                     onCategoryClick = { categoryId ->
                         navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
                     },
-                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -216,7 +218,8 @@ fun AppNavigation(
                     onWordClick = { wordId ->
                         navController.navigate(Screen.WordDetail.createRoute(wordId))
                     },
-                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 
@@ -237,7 +240,8 @@ fun AppNavigation(
                     onBack = {
                         navController.popBackStack()
                     },
-                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) },
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 

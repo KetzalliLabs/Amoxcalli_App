@@ -27,10 +27,12 @@ fun FavoritesScreen(
     onWordClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
-    favoritesViewModel: FavoritesViewModel = viewModel()
+    favoritesViewModel: FavoritesViewModel = viewModel(),
+    viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val favorites by favoritesViewModel.favorites.collectAsState()
     val isLoading by favoritesViewModel.isLoading.collectAsState()
+    val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
 
 
     // Load favorites when screen is shown (they load automatically in init, but refresh just in case)
@@ -127,9 +129,12 @@ fun FavoritesScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(favorites) { favorite ->
+                        val isViewed = viewedSignIds.contains(favorite.id)
+
                         LibraryWordButton(
                             text = favorite.name,
                             isFavorite = true,
+                            isViewed = isViewed,
                             onClick = {
                                 onWordClick(favorite.id)
                             },

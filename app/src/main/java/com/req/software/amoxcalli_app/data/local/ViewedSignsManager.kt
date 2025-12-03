@@ -16,18 +16,26 @@ class ViewedSignsManager(context: Context) {
 
     /**
      * Get all viewed sign IDs
+     * IMPORTANT: Returns a new HashSet to avoid SharedPreferences reference issues
      */
     fun getViewedSigns(): Set<String> {
-        return prefs.getStringSet(VIEWED_SIGNS_KEY, emptySet()) ?: emptySet()
+        val storedSet = prefs.getStringSet(VIEWED_SIGNS_KEY, null)
+        return if (storedSet != null) {
+            HashSet(storedSet)
+        } else {
+            emptySet()
+        }
     }
 
     /**
      * Mark a sign as viewed
+     * Creates a completely new HashSet to ensure SharedPreferences detects the change
      */
     fun markAsViewed(signId: String) {
-        val currentViewed = getViewedSigns().toMutableSet()
+        val currentViewed = HashSet(getViewedSigns())
         currentViewed.add(signId)
-        prefs.edit().putStringSet(VIEWED_SIGNS_KEY, currentViewed).apply()
+        // Use commit() instead of apply() to ensure synchronous write
+        prefs.edit().putStringSet(VIEWED_SIGNS_KEY, currentViewed).commit()
     }
 
     /**
