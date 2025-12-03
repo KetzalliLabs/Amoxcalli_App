@@ -10,6 +10,7 @@ import com.req.software.amoxcalli_app.data.dto.ExerciseCompletionRequest
 import com.req.software.amoxcalli_app.data.dto.DailyQuizRequest
 import com.req.software.amoxcalli_app.data.dto.CategoryProgressRequest
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -89,4 +90,65 @@ interface AuthService {
         @Header("Authorization") authToken: String,
         @Body request: CategoryProgressRequest
     ): ApiResponse<Unit>
+
+    /**
+     * Add sign to favorites
+     * @param authToken Firebase auth token
+     * @param signId Sign ID
+     */
+    @POST("auth/me/favorites/{signId}")
+    suspend fun addToFavorites(
+        @Header("Authorization") authToken: String,
+        @Path("signId") signId: String
+    ): ApiResponse<com.req.software.amoxcalli_app.data.dto.FavoriteResponse>
+
+    /**
+     * Remove sign from favorites
+     * @param authToken Firebase auth token
+     * @param signId Sign ID
+     */
+    @DELETE("auth/me/favorites/{signId}")
+    suspend fun removeFromFavorites(
+        @Header("Authorization") authToken: String,
+        @Path("signId") signId: String
+    ): ApiResponse<Unit>
+
+    /**
+     * Get user's favorite signs
+     * @param authToken Firebase auth token
+     * @return List of favorite signs
+     */
+    @GET("auth/me/favorites")
+    suspend fun getFavorites(
+        @Header("Authorization") authToken: String
+    ): com.req.software.amoxcalli_app.data.dto.ListResponse<com.req.software.amoxcalli_app.data.dto.FavoriteSignDto>
+
+    /**
+     * Get all available medals (public)
+     * @return List of all medals that can be earned
+     */
+    @GET("auth/medals")
+    suspend fun getAllMedals(): ApiResponse<List<com.req.software.amoxcalli_app.data.dto.MedalInfo>>
+
+    /**
+     * Get medals earned by the authenticated user
+     * @param authToken Firebase auth token
+     * @return List of medals earned by the user
+     */
+    @GET("auth/me/medals")
+    suspend fun getUserMedals(
+        @Header("Authorization") authToken: String
+    ): ApiResponse<List<com.req.software.amoxcalli_app.data.dto.Medal>>
+
+    /**
+     * Claim a medal (user must meet conditions)
+     * @param authToken Firebase auth token
+     * @param medalId Medal ID to claim
+     * @return Success response with medal data
+     */
+    @POST("auth/me/medals/{medalId}/claim")
+    suspend fun claimMedal(
+        @Header("Authorization") authToken: String,
+        @Path("medalId") medalId: String
+    ): ApiResponse<com.req.software.amoxcalli_app.data.dto.MedalClaimResponse>
 }

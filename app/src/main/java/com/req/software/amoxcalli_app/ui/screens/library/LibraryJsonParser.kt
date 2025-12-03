@@ -16,8 +16,8 @@ fun parseLibraryJson(json: String): List<LibraryWordUi> {
             val item = dataArray.optJSONObject(i) ?: continue
             val id = item.optString("id", "")
             val name = item.optString("name", "")
-            val videoUrl = item.optString("video_url", null)
-            val imageUrl = item.optString("image_url", null)
+            val videoUrl = item.optString("video_url", "")
+            val imageUrl = item.optString("image_url", "")
             if (id.isNotBlank() && name.isNotBlank()) {
                 result.add(
                     LibraryWordUi(

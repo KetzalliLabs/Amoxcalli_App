@@ -1,13 +1,15 @@
 package com.req.software.amoxcalli_app.ui.components.buttons
 
-// Agrega este Composable en un archivo apropiado, como /ui/components/buttons/LibraryWordButton.ktpackage com.req.software.amoxcalli_app.ui.components.buttons
+// Composable for Library Word Button with favorite functionality
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,21 +18,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.req.software.amoxcalli_app.ui.theme.MainColor
 
 // Nuevo Composable para el botón en LibraryScreen
 @Composable
 fun LibraryWordButton(
     text: String,
     isFavorite: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onFavoriteClick: (() -> Unit)? = null,
+    isViewed: Boolean = false
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp,
-        color = Color(0xFF0D1A3A), // third_color - Dark navy blue
+        color = if (isViewed) Color(0xFF4CAF50) else Color(0xFF1E3A5F), // Brighter green if viewed, lighter navy if not
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .aspectRatio(1.35f)
             .clickable { onClick() }
     ) {
         Box(
@@ -40,12 +45,30 @@ fun LibraryWordButton(
             contentAlignment = Alignment.Center
         ) {
             // Icono de favorito en la esquina superior derecha
-            if (isFavorite) {
+            if (onFavoriteClick != null) {
                 Text(
-                    text = "❤️",
+                    text = if (isFavorite) "❤️" else "🤍",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
+                        .padding(2.dp)
+                        .clickable(
+                            onClick = onFavoriteClick,
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        )
+                )
+            }
+
+            // Checkmark indicator for viewed signs (bottom-left corner)
+            if (isViewed) {
+                Text(
+                    text = "✓",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
                         .padding(2.dp)
                 )
             }
@@ -56,7 +79,7 @@ fun LibraryWordButton(
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = MainColor,
                 modifier = Modifier.align(Alignment.Center),
                 maxLines = 2
             )
@@ -68,7 +91,7 @@ fun LibraryWordButton(
 @Composable
 fun LibraryWordButtonPreview() {
     Box(modifier = Modifier.padding(16.dp).size(120.dp)) {
-        LibraryWordButton(text = "Hola", isFavorite = true, onClick = {})
+        LibraryWordButton(text = "Hola", isFavorite = true, onClick = {}, onFavoriteClick = {})
     }
 }
 
@@ -76,6 +99,6 @@ fun LibraryWordButtonPreview() {
 @Composable
 fun LibraryWordButtonNotFavoritePreview() {
     Box(modifier = Modifier.padding(16.dp).size(120.dp)) {
-        LibraryWordButton(text = "Adiós", isFavorite = false, onClick = {})
+        LibraryWordButton(text = "Adiós", isFavorite = false, onClick = {}, onFavoriteClick = {})
     }
 }

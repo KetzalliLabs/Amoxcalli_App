@@ -5,9 +5,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,45 +25,37 @@ import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
+import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
 fun CategoriesScreen(
-    userStats: UserStatsResponse?,
     onCategoryClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    categoryViewModel: CategoryViewModel = viewModel()
+    topBar: @Composable () -> Unit = {},
+    categoryViewModel: CategoryViewModel = viewModel(),
+    viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val categories by categoryViewModel.categories.collectAsState()
     val isLoading by categoryViewModel.isLoading.collectAsState()
     val error by categoryViewModel.error.collectAsState()
+    val categorySignsMap by categoryViewModel.categorySignsMap.collectAsState()
+    val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
+
+
+    // Preload signs for all categories to calculate progress
+    LaunchedEffect(categories) {
+        if (categories.isNotEmpty()) {
+            categoryViewModel.preloadAllCategorySigns()
+        }
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as Library and Home)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ThirdColor) // Using theme color - Dark navy blue
-                .padding(top = 12.dp, bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Extract values from UserStatsResponse
-            val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-            val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
-            val streak = userStats?.streak?.currentDays ?: 0
-            val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
-
-            StatsHeader(
-                coins = coins,
-                energy = energy,
-                streak = streak,
-                experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
-            )
-        }
+        // Centralized top bar
+        topBar()
 
         // Main content
         Column(
@@ -70,7 +67,7 @@ fun CategoriesScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Categorías",
+                text = "Práctica de palabras",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = ThirdColor,
@@ -155,17 +152,96 @@ fun CategoriesScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(categories) { category ->
-                        PrimaryButton(
-                            text = category.name,
-                            enablePulse = false,
-                            backgroundColor = ThirdColor,
+                        // Calculate progress percentage using local viewed state
+                        val categorySignsList = categorySignsMap[category.id] ?: emptyList()
+                        val categorySignsCount = categorySignsList.size
+
+                        val viewedSignsInCategory = categorySignsList.count { sign ->
+                            viewedSignIds.contains(sign.id)
+                        }
+
+                        val progressPercentage = if (categorySignsCount > 0) {
+                            ((viewedSignsInCategory.toFloat() / categorySignsCount) * 100).toInt()
+                        } else {
+                            0
+                        }
+
+                        CategoryButtonWithProgress(
+                            categoryName = category.name,
+                            progress = progressPercentage,
                             onClick = { onCategoryClick(category.id) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(80.dp)
+                                .height(100.dp)
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Category button with progress percentage
+ */
+@Composable
+private fun CategoryButtonWithProgress(
+    categoryName: String,
+    progress: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = ThirdColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Category name
+            Text(
+                text = categoryName,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f),
+                maxLines = 2
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Progress bar
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LinearProgressIndicator(
+                    progress = progress / 100f,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = Color(0xFF4CAF50), // Bright green for better visibility
+                    trackColor = Color.White.copy(alpha = 0.4f)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Progress percentage
+                Text(
+                    text = "$progress%",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
             }
         }
     }

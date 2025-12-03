@@ -21,10 +21,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
 import com.req.software.amoxcalli_app.viewmodel.ExerciseViewModel
 import com.req.software.amoxcalli_app.viewmodel.SessionState
+// Imports   MediaDisplay
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaDisplay
+import com.req.software.amoxcalli_app.ui.screens.exercises.common.MediaType
+import com.req.software.amoxcalli_app.ui.theme.ThirdColor
 
 /**
  * Exercise screen that fetches data from backend API
  * Uses ExerciseViewModel to handle exercise logic
+ * 
+ * @param categoryId Optional category ID to filter exercises by category
  */
 @Composable
 fun ApiExerciseScreen(
@@ -32,7 +38,9 @@ fun ApiExerciseScreen(
     authToken: String?,
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
-    exerciseViewModel: ExerciseViewModel = viewModel()
+    categoryId: String? = null,
+    exerciseViewModel: ExerciseViewModel = viewModel(),
+    userStatsViewModel: com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val currentExercise by exerciseViewModel.currentExercise.collectAsState()
     val isLoading by exerciseViewModel.isLoading.collectAsState()
@@ -43,9 +51,19 @@ fun ApiExerciseScreen(
     val wrongCount by exerciseViewModel.wrongCount.collectAsState()
     val sessionState by exerciseViewModel.sessionState.collectAsState()
 
-    // Load a random exercise when screen starts
-    LaunchedEffect(Unit) {
-        exerciseViewModel.loadRandomExercise()
+    // Get reactive user stats for updated XP display
+    val currentUserStats by userStatsViewModel.userStats.collectAsState()
+
+    // Get local XP for real-time updates
+    val localXP by userStatsViewModel.localXP.collectAsState()
+
+    // Load exercises when screen starts (filtered by category if provided)
+    LaunchedEffect(categoryId) {
+        if (categoryId != null) {
+            exerciseViewModel.loadExercises(categoryId)
+        } else {
+            exerciseViewModel.loadRandomExercise()
+        }
     }
 
     // Show game over screen if session ended
@@ -56,7 +74,11 @@ fun ApiExerciseScreen(
             wrongCount = wrongCount,
             onRestart = {
                 exerciseViewModel.reset()
-                exerciseViewModel.loadRandomExercise()
+                if (categoryId != null) {
+                    exerciseViewModel.loadExercises(categoryId)
+                } else {
+                    exerciseViewModel.loadRandomExercise()
+                }
             },
             onExit = onCloseClick
         )
@@ -83,7 +105,13 @@ fun ApiExerciseScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     androidx.compose.material3.Button(
-                        onClick = { exerciseViewModel.loadRandomExercise() }
+                        onClick = {
+                            if (categoryId != null) {
+                                exerciseViewModel.loadExercises(categoryId)
+                            } else {
+                                exerciseViewModel.loadRandomExercise()
+                            }
+                        }
                     ) {
                         Text("Reintentar")
                     }
@@ -92,10 +120,17 @@ fun ApiExerciseScreen(
             currentExercise != null -> {
                 val exercise = currentExercise!!
 
-                // Extract user stats
-                val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-                val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 20
-                val xp = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
+                // Extract user stats - use local XP for real-time updates
+                val coins = currentUserStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
+                val energy = currentUserStats?.stats?.find { it.name == "energy" }?.currentValue ?: 20
+                // Use local XP instead of API XP for instant updates
+                val xp = localXP
+
+                val mediaType = when {
+                    !exercise.correctSign.videoUrl.isNullOrBlank() -> MediaType.VIDEO
+                    !exercise.correctSign.imageUrl.isNullOrBlank() -> MediaType.IMAGE
+                    else -> MediaType.NONE
+                }
 
                 // Determine question type based on video/image availability
                 val questionType = when {
@@ -151,42 +186,67 @@ fun ApiExerciseScreen(
 
                     LearnGameScreen(
                         uiState = uiState,
+                        // Le pasamos la información del medio
+                        mediaType = mediaType,
+                        videoUrl = exercise.correctSign.videoUrl,
+                        imageUrl = exercise.correctSign.imageUrl,
+                        // El resto de los parámetros no cambian
                         onOptionSelected = { optionId ->
                             exerciseViewModel.selectAnswer(optionId)
                         },
                         onConfirmClick = {
                             if (answerResult == null) {
-                                // Check answer
-                                exerciseViewModel.checkAnswer(authToken)
+                                exerciseViewModel.checkAnswer(authToken) {
+                                    // Award XP for correct answer
+                                    userStatsViewModel.awardCorrectAnswerXP()
+                                }
                             } else {
-                                // Load next question
-                                exerciseViewModel.nextExercise()
+                                if (categoryId != null) {
+                                    exerciseViewModel.nextExercise()
+                                } else {
+                                    exerciseViewModel.loadRandomExercise()
+                                }
                             }
                         },
                         onCloseClick = onCloseClick
                     )
                 }
 
-                // Show answer result overlay
+                // Show answer result overlay with improved visibility
                 answerResult?.let { result ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = 100.dp),
+                            .padding(bottom = 120.dp),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .padding(horizontal = 24.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (result.isCorrect)
+                                    Color(0xFF4CAF50)
+                                else
+                                    Color(0xFFF44336)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
-                            Text(
-                                text = result.message,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (result.isCorrect) Color(0xFF4CAF50) else Color(0xFFF44336)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = result.message,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }

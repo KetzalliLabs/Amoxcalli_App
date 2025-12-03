@@ -23,6 +23,7 @@ class CategoryViewModel : ViewModel() {
     val categories: StateFlow<List<CategoryDto>> = _categories.asStateFlow()
 
     private val _categorySignsMap = MutableStateFlow<Map<String, List<SignDto>>>(emptyMap())
+    val categorySignsMap: StateFlow<Map<String, List<SignDto>>> = _categorySignsMap.asStateFlow()
 
     private val _currentCategoryId = MutableStateFlow<String?>(null)
     val currentCategoryId: StateFlow<String?> = _currentCategoryId.asStateFlow()
@@ -123,15 +124,23 @@ class CategoryViewModel : ViewModel() {
 
     /**
      * Record a sign view
+     * @param onSuccess Callback called after successful recording (for refreshing stats)
      */
-    fun recordSignView(signId: String, authToken: String) {
+    fun recordSignView(signId: String, authToken: String, onSuccess: (() -> Unit)? = null) {
         viewModelScope.launch {
             try {
-                authService.recordSignView(authToken, signId)
-                Log.d("CategoryViewModel", "Recorded view for sign: $signId")
+                Log.d("CategoryViewModel", "Recording view for sign: $signId with token: ${authToken.take(20)}...")
+                val response = authService.recordSignView(authToken, signId)
+
+                if (response.success) {
+                    Log.d("CategoryViewModel", "Successfully recorded view for sign: $signId")
+                    // Call success callback to refresh stats
+                    onSuccess?.invoke()
+                } else {
+                    Log.e("CategoryViewModel", "Failed to record sign view: ${response.message}")
+                }
             } catch (e: Exception) {
-                Log.e("CategoryViewModel", "Error recording sign view: ${e.message}")
-                // Silently fail - this is not critical
+                Log.e("CategoryViewModel", "Error recording sign view: ${e.message}", e)
             }
         }
     }
@@ -159,5 +168,43 @@ class CategoryViewModel : ViewModel() {
         _currentCategorySigns.value = emptyList()
         _currentCategoryId.value = null
         Log.d("CategoryViewModel", "Cleared all caches")
+    }
+
+    /**
+     * Get the count of signs in a specific category
+     * Returns cached count if available, otherwise loads signs for the category
+     */
+    fun getSignsCountForCategory(categoryId: String): Int {
+        val cachedSigns = _categorySignsMap.value[categoryId]
+        if (cachedSigns != null) {
+            return cachedSigns.size
+        }
+
+        // Load signs for this category if not cached
+        loadSignsForCategory(categoryId)
+        return 0 // Will update once loaded
+    }
+
+    /**
+     * Check if a sign belongs to a specific category
+     * Uses cached data to determine if sign is in category
+     */
+    fun isSignInCategory(signId: String, categoryId: String): Boolean {
+        val cachedSigns = _categorySignsMap.value[categoryId]
+        return cachedSigns?.any { it.id == signId } ?: false
+    }
+
+    /**
+     * Preload signs for all categories to enable progress calculation
+     * Call this when entering CategoriesScreen
+     */
+    fun preloadAllCategorySigns() {
+        viewModelScope.launch {
+            _categories.value.forEach { category ->
+                if (_categorySignsMap.value[category.id] == null) {
+                    loadSignsForCategory(category.id)
+                }
+            }
+        }
     }
 }

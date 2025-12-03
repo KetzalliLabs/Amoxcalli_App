@@ -25,8 +25,15 @@ import com.req.software.amoxcalli_app.ui.screens.library.LibraryScreen
 import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoriesScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoryDetailScreen
+import com.req.software.amoxcalli_app.ui.screens.favorites.FavoritesScreen
+import com.req.software.amoxcalli_app.ui.screens.admin.SuperadminScreen
+import com.req.software.amoxcalli_app.ui.screens.admin.AdminPanelScreen
+import com.req.software.amoxcalli_app.ui.screens.teacher.TeacherDashboardScreen
+import com.req.software.amoxcalli_app.domain.model.UserRole
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
+import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
+import com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel
 
 /**
  * Sealed class para definir las rutas de navegación
@@ -40,8 +47,13 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object Exercises : Screen("exercises")
     object Categories : Screen("categories")
+    object Favorites : Screen("favorites")
+    object Admin : Screen("admin")
     object CategoryDetail : Screen("category/{categoryId}") {
         fun createRoute(categoryId: String) = "category/$categoryId"
+    }
+    object CategoryQuiz : Screen("category/{categoryId}/quiz") {
+        fun createRoute(categoryId: String) = "category/$categoryId/quiz"
     }
     object TopicDetail : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
@@ -65,6 +77,12 @@ fun AppNavigation(
 
     val homeViewModel: HomeViewModel = viewModel()
     val userStatsViewModel: UserStatsViewModel = viewModel()
+    val categoryViewModel: CategoryViewModel = viewModel()
+    val viewedSignsViewModel: ViewedSignsViewModel = viewModel()
+
+    // Get user stats and auth token for medal checking
+    val userStats by userStatsViewModel.userStats.collectAsState()
+    val authToken by authViewModel.authToken.collectAsState()
 
     Scaffold(
         containerColor = Color.White,
@@ -74,6 +92,7 @@ fun AppNavigation(
                     Screen.Home.route,
                     Screen.Topics.route,
                     Screen.Categories.route,
+                    Screen.Favorites.route,
                     Screen.Profile.route
                 )
             ) {
@@ -118,11 +137,13 @@ fun AppNavigation(
                         navController.navigate(Quiz.route)
                     },
                     onPracticeClick = {
-                        navController.navigate(Screen.Practice.route)
+                        // Navigate to Categories instead of Practice (shortcut)
+                        navController.navigate(Screen.Categories.route)
                     },
                     onLibraryClick = {
                         navController.navigate(Screen.Topics.route)
-                    }
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -143,7 +164,8 @@ fun AppNavigation(
                     authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 
@@ -159,7 +181,8 @@ fun AppNavigation(
                     authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 
@@ -167,13 +190,9 @@ fun AppNavigation(
             // LIBRARY / TOPICS
             // -------------------------------------------------------------
             composable(Screen.Topics.route) {
-                val userStats by userStatsViewModel.userStats.collectAsState()
-                val authToken by authViewModel.authToken.collectAsState()
-
                 LibraryScreen(
-                    userStats = userStats,
-                    authToken = authToken,
-                    onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") }
+                    onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -181,13 +200,23 @@ fun AppNavigation(
             // CATEGORIES – Pantalla de categorías
             // -------------------------------------------------------------
             composable(Screen.Categories.route) {
-                val userStats by userStatsViewModel.userStats.collectAsState()
-
                 CategoriesScreen(
-                    userStats = userStats,
                     onCategoryClick = { categoryId ->
                         navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
-                    }
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // FAVORITES – Pantalla de favoritos
+            // -------------------------------------------------------------
+            composable(Screen.Favorites.route) {
+                FavoritesScreen(
+                    onWordClick = { wordId ->
+                        navController.navigate(Screen.WordDetail.createRoute(wordId))
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -196,19 +225,38 @@ fun AppNavigation(
             // -------------------------------------------------------------
             composable(Screen.CategoryDetail.route) { backStackEntry ->
                 val categoryId = backStackEntry.arguments?.getString("categoryId") ?: return@composable
-                val userStats by userStatsViewModel.userStats.collectAsState()
-                val authToken by authViewModel.authToken.collectAsState()
 
                 CategoryDetailScreen(
                     categoryId = categoryId,
-                    userStats = userStats,
-                    authToken = authToken,
                     onWordClick = { wordId ->
                         navController.navigate(Screen.WordDetail.createRoute(wordId))
                     },
+                    onQuizClick = {
+                        navController.navigate(Screen.CategoryQuiz.createRoute(categoryId))
+                    },
                     onBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // CATEGORY QUIZ – Quiz filtrado por categoría
+            // -------------------------------------------------------------
+            composable(Screen.CategoryQuiz.route) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: return@composable
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val authToken by authViewModel.authToken.collectAsState()
+
+                ApiExerciseScreen(
+                    userStats = userStats,
+                    authToken = authToken,
+                    categoryId = categoryId,
+                    onCloseClick = {
+                        navController.popBackStack()
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 
@@ -1117,8 +1165,48 @@ fun AppNavigation(
                     onLogoutSuccess = {
                         userStatsViewModel.clearStats()
                         onLogout()
+                    },
+                    onNavigateToAdmin = {
+                        navController.navigate(Screen.Admin.route)
                     }
                 )
+            }
+
+            // -------------------------------------------------------------
+            // ADMIN – Panel de administración (admin/superadmin/teacher)
+            // Routes to different panels based on user role
+            // -------------------------------------------------------------
+            composable(Screen.Admin.route) {
+                val userStats by userStatsViewModel.userStats.collectAsState()
+                val userRole by authViewModel.userRole.collectAsState()
+
+                when (userRole) {
+                    UserRole.SUPERADMIN -> {
+                        SuperadminScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    UserRole.ADMIN -> {
+                        AdminPanelScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    UserRole.TEACHER -> {
+                        TeacherDashboardScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    else -> {
+                        // Fallback - shouldn't happen as button is only shown for elevated roles
+                        navController.navigateUp()
+                    }
+                }
             }
 
             // -------------------------------------------------------------
@@ -1130,7 +1218,12 @@ fun AppNavigation(
                     wordId = wordId,
                     onClose = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStats = userStats,
+                    authToken = authToken,
+                    categoryViewModel = categoryViewModel,
+                    userStatsViewModel = userStatsViewModel,
+                    viewedSignsViewModel = viewedSignsViewModel
                 )
             }
 

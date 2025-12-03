@@ -47,12 +47,15 @@ import kotlin.math.roundToInt
 fun ProfileScreen(
     authViewModel: AuthViewModel = viewModel(),
     userStatsViewModel: UserStatsViewModel = viewModel(),
-    onLogoutSuccess: () -> Unit = {}
+    onLogoutSuccess: () -> Unit = {},
+    onNavigateToAdmin: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser by authViewModel.currentUser.collectAsState()
     val userStats by userStatsViewModel.userStats.collectAsState()
     val isLoading by userStatsViewModel.isLoading.collectAsState()
+    val isAdmin by authViewModel.isAdmin.collectAsState()
+    val userRole by authViewModel.userRole.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Load stats when screen appears
@@ -77,13 +80,16 @@ fun ProfileScreen(
             val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
             val streak = userStats?.streak?.currentDays ?: 0
             val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
+            val localXP by userStatsViewModel.localXP.collectAsState()
 
             com.req.software.amoxcalli_app.ui.components.headers.StatsHeader(
                 coins = coins,
                 energy = energy,
                 streak = streak,
                 experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
+                medalsCount = userStats?.medals?.size ?: 0,
+                useLocalXP = true,
+                localXP = localXP
             )
         }
 
@@ -353,6 +359,53 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de Panel (admin/superadmin/teacher)
+            if (isAdmin || userRole == com.req.software.amoxcalli_app.domain.model.UserRole.TEACHER) {
+                val (buttonIcon, buttonTitle, buttonColor) = when (userRole) {
+                    com.req.software.amoxcalli_app.domain.model.UserRole.SUPERADMIN -> Triple("🛡️", "Superadmin Panel", Color(0xFF6B5B95))
+                    com.req.software.amoxcalli_app.domain.model.UserRole.ADMIN -> Triple("🛡️", "Panel de Admin", Color(0xFF2196F3))
+                    com.req.software.amoxcalli_app.domain.model.UserRole.TEACHER -> Triple("🎓", "Panel de Maestro", Special3Color)
+                    else -> Triple("🛡️", "Panel", Color(0xFF6B5B95))
+                }
+
+                Button(
+                    onClick = onNavigateToAdmin,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .height(60.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = buttonColor,
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 8.dp
+                    )
+                ) {
+                    Text(
+                        text = buttonIcon,
+                        fontSize = 24.sp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = buttonTitle,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = userRole.displayName,
+                            fontSize = 11.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // Botón de Cerrar Sesión
             Button(
