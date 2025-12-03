@@ -1,5 +1,7 @@
 package com.req.software.amoxcalli_app.ui.screens.teacher
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -321,6 +324,8 @@ private fun StudentsTab() {
  */
 @Composable
 private fun ProgressTab() {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -372,6 +377,33 @@ private fun ProgressTab() {
                     icon = Icons.Default.Assignment
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Generate Report Button
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/file/d/17vCwRUwPktnWsAx1wxghRHyrrxmB_U4u/view?usp=sharing"))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Special3Color
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Description,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Generar Reporte",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

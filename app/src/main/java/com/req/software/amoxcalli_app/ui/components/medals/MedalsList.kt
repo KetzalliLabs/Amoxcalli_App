@@ -83,10 +83,10 @@ fun MedalsGrid(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(availableMedals) { medal ->
@@ -134,7 +134,7 @@ private fun MedalCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
+                .padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -145,7 +145,7 @@ private fun MedalCard(
                 if (isEarned) {
                     Box(
                         modifier = Modifier
-                            .size(60.dp)
+                            .size(130.dp)
                             .background(
                                 color = Special3Color.copy(alpha = 0.2f),
                                 shape = CircleShape
@@ -157,7 +157,7 @@ private fun MedalCard(
                     model = medal.iconUrl,
                     contentDescription = medal.name,
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(120.dp)
                         .alpha(if (isEarned) 1f else 0.4f),
                     contentScale = ContentScale.Fit
                 )
@@ -166,33 +166,33 @@ private fun MedalCard(
                 if (!isEarned) {
                     Text(
                         text = "🔒",
-                        fontSize = 16.sp,
+                        fontSize = 24.sp,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .offset(x = 4.dp, y = 4.dp)
+                            .offset(x = 8.dp, y = 8.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Medal name
             Text(
                 text = medal.name,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontWeight = if (isEarned) FontWeight.Bold else FontWeight.Normal,
                 color = if (isEarned) ThirdColor else Color.Gray,
                 textAlign = TextAlign.Center,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
             // Progress indicator for locked medals
             if (!isEarned && requiredProgress > 0) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "$currentProgress/$requiredProgress",
-                    fontSize = 10.sp,
+                    fontSize = 12.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
                 )
@@ -200,10 +200,10 @@ private fun MedalCard(
 
             // Checkmark for earned medals
             if (isEarned) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "✓",
-                    fontSize = 14.sp,
+                    fontSize = 18.sp,
                     color = Special3Color,
                     fontWeight = FontWeight.Bold
                 )

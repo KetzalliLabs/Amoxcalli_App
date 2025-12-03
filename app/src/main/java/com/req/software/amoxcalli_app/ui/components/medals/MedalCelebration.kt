@@ -202,7 +202,7 @@ private fun MedalCard(
                 // Glow effect
                 Box(
                     modifier = Modifier
-                        .size(160.dp)
+                        .size(240.dp)
                         .background(
                             color = Special3Color.copy(alpha = 0.2f),
                             shape = CircleShape
@@ -214,7 +214,7 @@ private fun MedalCard(
                     model = medal.iconUrl,
                     contentDescription = medal.name,
                     modifier = Modifier
-                        .size(140.dp)
+                        .size(37063.dp)
                         .scale(scale),
                     contentScale = ContentScale.Fit
                 )

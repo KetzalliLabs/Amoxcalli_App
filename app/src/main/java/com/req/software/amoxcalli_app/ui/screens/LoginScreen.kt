@@ -91,16 +91,16 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Top section with logo and title
+            // Top section with logos and title
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                // Logo with enhanced design
+                // Amoxcalli Logo with enhanced design
                 Card(
                     modifier = Modifier
-                        .size(180.dp)
+                        .size(220.dp)
                         .shadow(12.dp, CircleShape),
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(
@@ -112,11 +112,38 @@ fun LoginScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         AsyncImage(
-                            model = "https://pub-05700fc259bc4e839552241871f5e896.r2.dev/KetzalliLabsLogo.jpg",
+                            model = "https://pub-05700fc259bc4e839552241871f5e896.r2.dev/LOGO_AMOX.png",
+                            contentDescription = "Amoxcalli Logo",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // KetzalliLabs Logo
+                Card(
+                    modifier = Modifier
+                        .size(140.dp)
+                        .shadow(8.dp, CircleShape),
+                    shape = CircleShape,
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = "https://pub-05700fc259bc4e839552241871f5e896.r2.dev/LOGO_KETZ.png",
                             contentDescription = "KetzalliLabs Logo",
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(20.dp),
+                                .padding(4.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
