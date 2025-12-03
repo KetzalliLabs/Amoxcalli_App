@@ -164,79 +164,164 @@ fun WordDetailScreen(
                             }
                             word.videoUrl != null -> {
                                 val context = LocalContext.current
-
-                                // --- Video Player ---
-                                val exoPlayer = remember(word.videoUrl) {
-                                    ExoPlayer.Builder(context).build().apply {
-                                        val mediaItem = MediaItem.fromUri(Uri.parse(word.videoUrl))
-                                        setMediaItem(mediaItem)
-                                        prepare()
-                                        playWhenReady = true
-                                        repeatMode = Player.REPEAT_MODE_ONE
-                                    }
-                                }
+                                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
                                 // --- Control States ---
                                 var slowMode by remember { mutableStateOf(false) }
-                                var isPlaying by remember { mutableStateOf(true) }
+                                var isPlaying by remember { mutableStateOf(false) }
                                 var loopEnabled by remember { mutableStateOf(true) }
+                                var hasError by remember { mutableStateOf(false) }
 
+                                // --- Optimized Video Player ---
+                                val exoPlayer = remember(word.videoUrl) {
+                                    ExoPlayer.Builder(context)
+                                        .setLoadControl(
+                                            androidx.media3.exoplayer.DefaultLoadControl.Builder()
+                                                .setBufferDurationsMs(
+                                                    500,  // Min buffer before playback starts (500ms)
+                                                    2000, // Max buffer (2s) - reduced for shorter videos
+                                                    500,  // Buffer for playback (500ms)
+                                                    500   // Buffer for playback after rebuffer (500ms)
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                        .apply {
+                                            try {
+                                                val mediaItem = MediaItem.Builder()
+                                                    .setUri(Uri.parse(word.videoUrl))
+                                                    .build()
+
+                                                setMediaItem(mediaItem)
+                                                prepare()
+                                                playWhenReady = false // Don't autoplay
+                                                repeatMode = if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+
+                                                // Add listener for errors
+                                                addListener(object : Player.Listener {
+                                                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                                                        hasError = true
+                                                        android.util.Log.e("WordDetailScreen", "Video error: ${error.message}")
+                                                    }
+                                                })
+                                            } catch (e: Exception) {
+                                                hasError = true
+                                                android.util.Log.e("WordDetailScreen", "Failed to load video", e)
+                                            }
+                                        }
+                                }
+
+                                // Lifecycle awareness - pause when app goes to background
+                                DisposableEffect(lifecycleOwner) {
+                                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                                        when (event) {
+                                            androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
+                                                exoPlayer.pause()
+                                            }
+                                            androidx.lifecycle.Lifecycle.Event.ON_STOP -> {
+                                                exoPlayer.pause()
+                                            }
+                                            else -> {}
+                                        }
+                                    }
+                                    lifecycleOwner.lifecycle.addObserver(observer)
+                                    onDispose {
+                                        lifecycleOwner.lifecycle.removeObserver(observer)
+                                    }
+                                }
+
+                                // Release player when leaving screen
                                 DisposableEffect(exoPlayer) {
-                                    onDispose { exoPlayer.release() }
+                                    onDispose {
+                                        exoPlayer.stop()
+                                        exoPlayer.release()
+                                    }
                                 }
 
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    // Video Player View
-                                    AndroidView(
-                                        factory = { ctx ->
-                                            PlayerView(ctx).apply {
-                                                player = exoPlayer
-                                                useController = true
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(280.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.height(2.dp))
-
-                                    // --- Control Row ---
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceEvenly,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // SLOW DOWN BUTTON --------------------------------------
-                                        IconButton(
-                                            onClick = {
-                                                slowMode = !slowMode
-                                                exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
-                                            }
+                                    // Error message if video failed to load
+                                    if (hasError) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(280.dp),
+                                            contentAlignment = Alignment.Center
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.SlowMotionVideo,
-                                                contentDescription = "Slow Motion",
-                                                tint = if (slowMode) MainColor else Color.Gray
-                                            )
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "⚠️",
+                                                    fontSize = 48.sp
+                                                )
+                                                Text(
+                                                    text = "Error al cargar el video",
+                                                    color = Color.Red,
+                                                    fontSize = 14.sp
+                                                )
+                                            }
                                         }
+                                    } else {
+                                        // Video Player View
+                                        AndroidView(
+                                            factory = { ctx ->
+                                                PlayerView(ctx).apply {
+                                                    player = exoPlayer
+                                                    useController = true
+                                                    // Optimize video surface for better performance
+                                                    setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+                                                }
+                                            },
+                                            update = { playerView ->
+                                                playerView.player = exoPlayer
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(16f / 9f) // Responsive height based on width
+                                        )
+                                    }
 
-                                        // LOOP ---------------------------------------------------
-                                        IconButton(
-                                            onClick = {
-                                                loopEnabled = !loopEnabled
-                                                exoPlayer.repeatMode =
-                                                    if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
-                                            }
+                                    if (!hasError) {
+                                        Spacer(modifier = Modifier.height(2.dp))
+
+                                        // --- Control Row ---
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceEvenly,
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Refresh, // replace with Loop icon later
-                                                contentDescription = "Loop",
-                                                tint = if (loopEnabled) MainColor else Color.Gray
-                                            )
+                                            // SLOW DOWN BUTTON --------------------------------------
+                                            IconButton(
+                                                onClick = {
+                                                    slowMode = !slowMode
+                                                    exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
+                                                }
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.SlowMotionVideo,
+                                                    contentDescription = "Slow Motion",
+                                                    tint = if (slowMode) MainColor else Color.Gray
+                                                )
+                                            }
+
+                                            // LOOP ---------------------------------------------------
+                                            IconButton(
+                                                onClick = {
+                                                    loopEnabled = !loopEnabled
+                                                    exoPlayer.repeatMode =
+                                                        if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                                                }
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Refresh,
+                                                    contentDescription = "Loop",
+                                                    tint = if (loopEnabled) MainColor else Color.Gray
+                                                )
+                                            }
                                         }
                                     }
                                 }

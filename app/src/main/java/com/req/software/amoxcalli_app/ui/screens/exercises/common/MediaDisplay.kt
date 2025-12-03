@@ -47,39 +47,85 @@ fun MediaDisplay(
     videoUrl: String? = null,
     modifier: Modifier = Modifier
 ) {
-    // ✅ PASO 1: ESTADO ELEVADO Y COMPLETO
-    // Se declaran aquí todas las variables de estado para que persistan.
     val context = LocalContext.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
+    // Estados de los controles
+    var slowMode by remember { mutableStateOf(false) }
+    var loopEnabled by remember { mutableStateOf(true) }
+    var isPlaying by remember { mutableStateOf(false) }
+    var hasError by remember { mutableStateOf(false) }
+
+    // Optimized Video Player with proper configuration
     val exoPlayer = remember(videoUrl) {
         if (mediaType == MediaType.VIDEO && videoUrl != null) {
-            ExoPlayer.Builder(context).build().apply {
-                setMediaItem(MediaItem.fromUri(Uri.parse(videoUrl)))
-                prepare()
-                playWhenReady = true // Autoplay
-                repeatMode = Player.REPEAT_MODE_ONE
+            try {
+                ExoPlayer.Builder(context)
+                    .setLoadControl(
+                        androidx.media3.exoplayer.DefaultLoadControl.Builder()
+                            .setBufferDurationsMs(
+                                500,  // Min buffer (500ms)
+                                2000, // Max buffer (2s)
+                                500,  // Buffer for playback
+                                500   // Buffer after rebuffer
+                            )
+                            .build()
+                    )
+                    .build()
+                    .apply {
+                        val mediaItem = MediaItem.Builder()
+                            .setUri(Uri.parse(videoUrl))
+                            .build()
+                        setMediaItem(mediaItem)
+                        prepare()
+                        playWhenReady = false // Don't autoplay to reduce load
+                        repeatMode = Player.REPEAT_MODE_ONE
+
+                        // Error listener
+                        addListener(object : Player.Listener {
+                            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                                hasError = true
+                                android.util.Log.e("MediaDisplay", "Video error: ${error.message}")
+                            }
+
+                            override fun onIsPlayingChanged(playing: Boolean) {
+                                isPlaying = playing
+                            }
+                        })
+                    }
+            } catch (e: Exception) {
+                hasError = true
+                android.util.Log.e("MediaDisplay", "Failed to create player", e)
+                null
             }
         } else {
             null
         }
     }
 
-    // Estados de los controles
-    var slowMode by remember { mutableStateOf(false) }
-    var loopEnabled by remember { mutableStateOf(true) }
-    var isPlaying by remember(exoPlayer) { mutableStateOf(exoPlayer?.isPlaying ?: false) }
-
-    // Listener para actualizar isPlaying
-    DisposableEffect(exoPlayer) {
-        val listener = object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
+    // Lifecycle awareness - pause when app goes to background
+    DisposableEffect(lifecycleOwner, exoPlayer) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            when (event) {
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
+                    exoPlayer?.pause()
+                }
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> {
+                    exoPlayer?.pause()
+                }
+                else -> {}
             }
         }
-        exoPlayer?.addListener(listener)
-
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
-            exoPlayer?.removeListener(listener)
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Release player when leaving screen
+    DisposableEffect(exoPlayer) {
+        onDispose {
+            exoPlayer?.stop()
             exoPlayer?.release()
         }
     }
@@ -101,11 +147,14 @@ fun MediaDisplay(
     ) {
         when (mediaType) {
             MediaType.VIDEO -> {
-                if (exoPlayer != null) {
+                if (hasError || exoPlayer == null) {
+                    VideoErrorPlaceholder()
+                } else {
                     VideoPlayer(
                         exoPlayer = exoPlayer,
                         slowMode = slowMode,
                         loopEnabled = loopEnabled,
+                        hasError = hasError,
                         onSlowModeToggle = {
                             slowMode = !slowMode
                             exoPlayer.setPlaybackSpeed(if (slowMode) 0.5f else 1.0f)
@@ -114,7 +163,6 @@ fun MediaDisplay(
                             loopEnabled = !loopEnabled
                             exoPlayer.repeatMode = if (loopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
                         },
-                        // ✅ PASO 3: PASAR EVENTO DE PAUSA/PLAY
                         onPlayPauseToggle = {
                             if (exoPlayer.isPlaying) {
                                 exoPlayer.pause()
@@ -124,8 +172,6 @@ fun MediaDisplay(
                         },
                         modifier = Modifier.fillMaxSize()
                     )
-                } else {
-                    VideoErrorPlaceholder()
                 }
             }
             MediaType.IMAGE -> ImageDisplay(imageUrl = imageUrl, modifier = Modifier.fillMaxSize())
@@ -135,16 +181,17 @@ fun MediaDisplay(
 }
 
 /**
- * Componente de Video "tonto" que ahora sí replica la interacción de WordDetailScreen.
+ * Optimized Video Player component with proper error handling and performance
  */
 @Composable
 private fun VideoPlayer(
     exoPlayer: ExoPlayer,
     slowMode: Boolean,
     loopEnabled: Boolean,
+    hasError: Boolean,
     onSlowModeToggle: () -> Unit,
     onLoopToggle: () -> Unit,
-    onPlayPauseToggle: () -> Unit, // Recibe el nuevo evento
+    onPlayPauseToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -152,57 +199,76 @@ private fun VideoPlayer(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(modifier = Modifier.weight(1f)) {
-            // Video Player View
-            AndroidView(
-                // ✅ PASO 4: HACER EL VIDEO CLICKEABLE PARA PAUSA/PLAY
-                factory = {
-                    PlayerView(it).apply {
-                        player = exoPlayer
-                        // AHORA SÍ HABILITAMOS EL CONTROLADOR NATIVO
-                        useController = true
-                        // Opcional: Ocultar el controlador por defecto y manejar todo manualmente
-                        // useController = false
-                        // setControllerAutoShow(false)
+            if (hasError) {
+                // Show error state
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = "⚠️", fontSize = 48.sp)
+                        Text(
+                            text = "Error al cargar video",
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
                     }
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    // Si queremos un control manual de pausa/play al tocar
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null, // Sin efecto ripple
-                        onClick = onPlayPauseToggle
-                    )
-            )
-        }
-
-        // Fila de controles personalizados
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.6f))
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // BOTÓN CÁMARA LENTA
-            IconButton(onClick = onSlowModeToggle) {
-                Icon(
-                    imageVector = Icons.Default.SlowMotionVideo,
-                    contentDescription = "Cámara Lenta",
-                    // ✅ CORRECCIÓN FINAL: Usar Color.Gray para el estado inactivo
-                    tint = if (slowMode) MainColor else Color.Gray
+                }
+            } else {
+                // Video Player View - Optimized
+                AndroidView(
+                    factory = { ctx ->
+                        PlayerView(ctx).apply {
+                            player = exoPlayer
+                            useController = true
+                            // Show buffering indicator
+                            setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+                        }
+                    },
+                    update = { playerView ->
+                        playerView.player = exoPlayer
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onPlayPauseToggle
+                        )
                 )
             }
+        }
 
-            // BOTÓN LOOP
-            IconButton(onClick = onLoopToggle) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Repetir",
-                    // ✅ CORRECCIÓN FINAL: Usar Color.Gray para el estado inactivo
-                    tint = if (loopEnabled) MainColor else Color.Gray
-                )
+        // Controls - only show if no error
+        if (!hasError) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Slow motion button
+                IconButton(onClick = onSlowModeToggle) {
+                    Icon(
+                        imageVector = Icons.Default.SlowMotionVideo,
+                        contentDescription = "Cámara Lenta",
+                        tint = if (slowMode) MainColor else Color.Gray
+                    )
+                }
+
+                // Loop button
+                IconButton(onClick = onLoopToggle) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Repetir",
+                        tint = if (loopEnabled) MainColor else Color.Gray
+                    )
+                }
             }
         }
     }
@@ -213,10 +279,30 @@ private fun VideoPlayer(
 @Composable
 private fun VideoErrorPlaceholder(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.fillMaxSize().background(Color(0xFFE0E0E0)),
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFF424242)),
         contentAlignment = Alignment.Center
     ) {
-        Text("🎥 Video no disponible", color = Color.Black)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "🎥",
+                fontSize = 48.sp
+            )
+            Text(
+                text = "Video no disponible",
+                color = Color.White,
+                fontSize = 16.sp
+            )
+            Text(
+                text = "Intenta de nuevo más tarde",
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
+        }
     }
 }
 
