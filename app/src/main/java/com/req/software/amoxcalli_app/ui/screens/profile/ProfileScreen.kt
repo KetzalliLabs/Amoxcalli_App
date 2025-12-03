@@ -80,13 +80,16 @@ fun ProfileScreen(
             val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
             val streak = userStats?.streak?.currentDays ?: 0
             val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
+            val localXP by userStatsViewModel.localXP.collectAsState()
 
             com.req.software.amoxcalli_app.ui.components.headers.StatsHeader(
                 coins = coins,
                 energy = energy,
                 streak = streak,
                 experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
+                medalsCount = userStats?.medals?.size ?: 0,
+                useLocalXP = true,
+                localXP = localXP
             )
         }
 
@@ -357,8 +360,15 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón de Panel de Administración (solo para admin/superadmin)
-            if (isAdmin) {
+            // Botón de Panel (admin/superadmin/teacher)
+            if (isAdmin || userRole == com.req.software.amoxcalli_app.domain.model.UserRole.TEACHER) {
+                val (buttonIcon, buttonTitle, buttonColor) = when (userRole) {
+                    com.req.software.amoxcalli_app.domain.model.UserRole.SUPERADMIN -> Triple("🛡️", "Superadmin Panel", Color(0xFF6B5B95))
+                    com.req.software.amoxcalli_app.domain.model.UserRole.ADMIN -> Triple("🛡️", "Panel de Admin", Color(0xFF2196F3))
+                    com.req.software.amoxcalli_app.domain.model.UserRole.TEACHER -> Triple("🎓", "Panel de Maestro", Special3Color)
+                    else -> Triple("🛡️", "Panel", Color(0xFF6B5B95))
+                }
+
                 Button(
                     onClick = onNavigateToAdmin,
                     modifier = Modifier
@@ -367,7 +377,7 @@ fun ProfileScreen(
                         .height(60.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6B5B95),
+                        containerColor = buttonColor,
                         contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.buttonElevation(
@@ -376,13 +386,13 @@ fun ProfileScreen(
                     )
                 ) {
                     Text(
-                        text = "🛡️",
+                        text = buttonIcon,
                         fontSize = 24.sp
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Panel de Administración",
+                            text = buttonTitle,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )

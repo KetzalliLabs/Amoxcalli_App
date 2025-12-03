@@ -122,4 +122,33 @@ interface AuthService {
     suspend fun getFavorites(
         @Header("Authorization") authToken: String
     ): com.req.software.amoxcalli_app.data.dto.ListResponse<com.req.software.amoxcalli_app.data.dto.FavoriteSignDto>
+
+    /**
+     * Get all available medals (public)
+     * @return List of all medals that can be earned
+     */
+    @GET("auth/medals")
+    suspend fun getAllMedals(): ApiResponse<List<com.req.software.amoxcalli_app.data.dto.MedalInfo>>
+
+    /**
+     * Get medals earned by the authenticated user
+     * @param authToken Firebase auth token
+     * @return List of medals earned by the user
+     */
+    @GET("auth/me/medals")
+    suspend fun getUserMedals(
+        @Header("Authorization") authToken: String
+    ): ApiResponse<List<com.req.software.amoxcalli_app.data.dto.Medal>>
+
+    /**
+     * Claim a medal (user must meet conditions)
+     * @param authToken Firebase auth token
+     * @param medalId Medal ID to claim
+     * @return Success response with medal data
+     */
+    @POST("auth/me/medals/{medalId}/claim")
+    suspend fun claimMedal(
+        @Header("Authorization") authToken: String,
+        @Path("medalId") medalId: String
+    ): ApiResponse<com.req.software.amoxcalli_app.data.dto.MedalClaimResponse>
 }

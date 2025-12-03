@@ -30,10 +30,13 @@ import com.req.software.amoxcalli_app.ui.components.buttons.PrimaryButton
 import com.req.software.amoxcalli_app.ui.components.headers.StatsHeader
 import com.req.software.amoxcalli_app.ui.theme.Special3Color
 import com.req.software.amoxcalli_app.ui.theme.ThirdColor
+import com.req.software.amoxcalli_app.ui.components.notifications.StatsNotification
+import com.req.software.amoxcalli_app.ui.components.notifications.StatsNotificationState
 
 /**
  * Simplified Home Screen
  * Shows user stats, medals, and main action buttons (Daily Quiz, Word Practice, Library)
+ * Now supports local XP tracking and animated notifications
  */
 @Composable
 fun HomeScreen(
@@ -42,34 +45,39 @@ fun HomeScreen(
     onQuizClick: () -> Unit,
     onPracticeClick: () -> Unit,
     onLibraryClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    localXP: Int? = null,  // Optional local XP override
+    notification: StatsNotificationState? = null  // Optional notification state
 ) {
-    Scaffold(
-        topBar = {
-            Column (
-                modifier = Modifier
-                    .background(ThirdColor)
-                    .padding(top= 15.dp, bottom = 10.dp),
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                Column(
+                    modifier = Modifier
+                        .background(ThirdColor)
+                        .padding(top = 15.dp, bottom = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                StatsHeader(
-                    coins = userStats.coins,
-                    energy = userStats.energy,
-                    streak = userStats.streak,
-                    experience = userStats.experience,
-                    medalsCount = medals.size
-                )
+                ) {
+                    StatsHeader(
+                        coins = userStats.coins,
+                        energy = userStats.energy,
+                        streak = userStats.streak,
+                        experience = userStats.experience,
+                        medalsCount = medals.size,
+                        useLocalXP = localXP != null,
+                        localXP = localXP
+                    )
+                }
             }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState()),
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+            ) {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Enhanced Stats Section with Medals
@@ -129,7 +137,14 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(80.dp))
+            }
         }
+
+        // Notification overlay
+        StatsNotification(
+            notificationState = notification,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

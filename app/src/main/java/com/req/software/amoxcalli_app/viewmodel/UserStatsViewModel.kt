@@ -1,9 +1,13 @@
 package com.req.software.amoxcalli_app.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.req.software.amoxcalli_app.data.dto.UserStatsResponse
+import com.req.software.amoxcalli_app.data.local.XPManager
 import com.req.software.amoxcalli_app.network.RetrofitClient
+import com.req.software.amoxcalli_app.ui.components.notifications.StatsNotificationState
+import com.req.software.amoxcalli_app.ui.components.notifications.StatsNotifications
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,9 +16,11 @@ import kotlinx.coroutines.launch
 /**
  * Centralized ViewModel for user stats management
  * This ViewModel is shared across the app to provide consistent user stats
+ * Now includes local XP tracking
  */
-class UserStatsViewModel : ViewModel() {
+class UserStatsViewModel(application: Application) : AndroidViewModel(application) {
     private val authService = RetrofitClient.authService
+    private val xpManager = XPManager(application)
 
     private val _userStats = MutableStateFlow<UserStatsResponse?>(null)
     val userStats: StateFlow<UserStatsResponse?> = _userStats.asStateFlow()
@@ -24,6 +30,29 @@ class UserStatsViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    // Local XP tracking
+    private val _localXP = MutableStateFlow(0)
+    val localXP: StateFlow<Int> = _localXP.asStateFlow()
+
+    private val _sessionXP = MutableStateFlow(0)
+    val sessionXP: StateFlow<Int> = _sessionXP.asStateFlow()
+
+    // Notification state
+    private val _notification = MutableStateFlow<StatsNotificationState?>(null)
+    val notification: StateFlow<StatsNotificationState?> = _notification.asStateFlow()
+
+    init {
+        loadLocalXP()
+    }
+
+    /**
+     * Load local XP from SharedPreferences
+     */
+    private fun loadLocalXP() {
+        _localXP.value = xpManager.getTotalXP()
+        _sessionXP.value = xpManager.getSessionXP()
+    }
 
     /**
      * Load user stats from backend
@@ -127,5 +156,88 @@ class UserStatsViewModel : ViewModel() {
      */
     fun getCategoriesCompleted(): Int {
         return _userStats.value?.progress?.count { it.status == "completed" } ?: 0
+    }
+
+    // ============================================
+    // LOCAL XP MANAGEMENT
+    // ============================================
+
+    /**
+     * Award XP for a correct answer and show notification
+     */
+    fun awardCorrectAnswerXP() {
+        val xpAmount = xpManager.awardCorrectAnswer()
+        _localXP.value = xpManager.getTotalXP()
+        _sessionXP.value = xpManager.getSessionXP()
+        showNotification(StatsNotifications.xpGained(xpAmount))
+    }
+
+    /**
+     * Award XP for completing an exercise and show notification
+     */
+    fun awardExerciseCompletionXP() {
+        val xpAmount = xpManager.awardExerciseCompletion()
+        _localXP.value = xpManager.getTotalXP()
+        _sessionXP.value = xpManager.getSessionXP()
+        showNotification(StatsNotifications.exerciseCompleted(xpAmount))
+    }
+
+    /**
+     * Award daily bonus XP and show notification
+     */
+    fun awardDailyBonusXP() {
+        val xpAmount = xpManager.awardDailyBonus()
+        _localXP.value = xpManager.getTotalXP()
+        _sessionXP.value = xpManager.getSessionXP()
+        showNotification(StatsNotifications.dailyBonus(xpAmount))
+    }
+
+    /**
+     * Add custom XP amount
+     */
+    fun addXP(amount: Int) {
+        xpManager.addXP(amount)
+        _localXP.value = xpManager.getTotalXP()
+        _sessionXP.value = xpManager.getSessionXP()
+        showNotification(StatsNotifications.xpGained(amount))
+    }
+
+    /**
+     * Reset session XP
+     */
+    fun resetSessionXP() {
+        xpManager.resetSessionXP()
+        _sessionXP.value = 0
+    }
+
+    /**
+     * Set total XP (for testing or sync)
+     */
+    fun setTotalXP(amount: Int) {
+        xpManager.setTotalXP(amount)
+        _localXP.value = amount
+    }
+
+    /**
+     * Reset all XP (for testing)
+     */
+    fun resetAllXP() {
+        xpManager.resetAllXP()
+        _localXP.value = 0
+        _sessionXP.value = 0
+    }
+
+    /**
+     * Show a notification
+     */
+    fun showNotification(notification: StatsNotificationState) {
+        _notification.value = notification
+    }
+
+    /**
+     * Clear notification (called automatically after display)
+     */
+    fun clearNotification() {
+        _notification.value = null
     }
 }

@@ -26,7 +26,10 @@ import com.req.software.amoxcalli_app.ui.screens.profile.ProfileScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoriesScreen
 import com.req.software.amoxcalli_app.ui.screens.categories.CategoryDetailScreen
 import com.req.software.amoxcalli_app.ui.screens.favorites.FavoritesScreen
-import com.req.software.amoxcalli_app.ui.screens.admin.AdminScreen
+import com.req.software.amoxcalli_app.ui.screens.admin.SuperadminScreen
+import com.req.software.amoxcalli_app.ui.screens.admin.AdminPanelScreen
+import com.req.software.amoxcalli_app.ui.screens.teacher.TeacherDashboardScreen
+import com.req.software.amoxcalli_app.domain.model.UserRole
 import com.req.software.amoxcalli_app.viewmodel.AuthViewModel
 import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 
@@ -72,6 +75,10 @@ fun AppNavigation(
 
     val homeViewModel: HomeViewModel = viewModel()
     val userStatsViewModel: UserStatsViewModel = viewModel()
+
+    // Get user stats and auth token for medal checking
+    val userStats by userStatsViewModel.userStats.collectAsState()
+    val authToken by authViewModel.authToken.collectAsState()
 
     Scaffold(
         containerColor = Color.White,
@@ -1168,19 +1175,40 @@ fun AppNavigation(
             }
 
             // -------------------------------------------------------------
-            // ADMIN – Panel de administración (solo admin/superadmin)
+            // ADMIN – Panel de administración (admin/superadmin/teacher)
+            // Routes to different panels based on user role
             // -------------------------------------------------------------
             composable(Screen.Admin.route) {
                 val userStats by userStatsViewModel.userStats.collectAsState()
                 val userRole by authViewModel.userRole.collectAsState()
 
-                AdminScreen(
-                    userStats = userStats,
-                    userRole = userRole,
-                    onBack = {
+                when (userRole) {
+                    UserRole.SUPERADMIN -> {
+                        SuperadminScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    UserRole.ADMIN -> {
+                        AdminPanelScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    UserRole.TEACHER -> {
+                        TeacherDashboardScreen(
+                            userStats = userStats,
+                            userRole = userRole,
+                            onBack = { navController.navigateUp() }
+                        )
+                    }
+                    else -> {
+                        // Fallback - shouldn't happen as button is only shown for elevated roles
                         navController.navigateUp()
                     }
-                )
+                }
             }
 
             // -------------------------------------------------------------
