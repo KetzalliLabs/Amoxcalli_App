@@ -32,15 +32,13 @@ import com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel
 @Composable
 fun CategoryDetailScreen(
     categoryId: String,
-    userStats: UserStatsResponse?,
-    authToken: String?,
     onWordClick: (String) -> Unit,
     onQuizClick: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
     categoryViewModel: CategoryViewModel = viewModel(),
     favoritesViewModel: FavoritesViewModel = viewModel(),
-    userStatsViewModel: UserStatsViewModel = viewModel(),
     viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val signs by categoryViewModel.currentCategorySigns.collectAsState()
@@ -49,7 +47,7 @@ fun CategoryDetailScreen(
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
     val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
 
-    // Get category name from ViewModel
+    // Load signs for this category when screen starts
     val categoryName = categoryViewModel.getCategoryName(categoryId)
 
     // Load signs for this category
@@ -63,28 +61,8 @@ fun CategoryDetailScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as other screens)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ThirdColor) // Using theme color - Dark navy blue
-                .padding(top = 12.dp, bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Extract values from UserStatsResponse
-            val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-            val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
-            val streak = userStats?.streak?.currentDays ?: 0
-            val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
-
-            StatsHeader(
-                coins = coins,
-                energy = energy,
-                streak = streak,
-                experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
-            )
-        }
+        // Centralized top bar
+        topBar()
 
         // Main content
         Column(

@@ -142,7 +142,8 @@ fun AppNavigation(
                     },
                     onLibraryClick = {
                         navController.navigate(Screen.Topics.route)
-                    }
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -163,7 +164,8 @@ fun AppNavigation(
                     authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 
@@ -179,7 +181,8 @@ fun AppNavigation(
                     authToken = authToken,
                     onCloseClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 
@@ -187,21 +190,9 @@ fun AppNavigation(
             // LIBRARY / TOPICS
             // -------------------------------------------------------------
             composable(Screen.Topics.route) {
-                val userStats by userStatsViewModel.userStats.collectAsState()
-                val authToken by authViewModel.authToken.collectAsState()
-
-                // Refresh stats when returning to this screen
-                LaunchedEffect(Unit) {
-                    authToken?.let { token ->
-                        userStatsViewModel.refreshStats(token)
-                    }
-                }
-
                 LibraryScreen(
-                    userStats = userStats,
-                    authToken = authToken,
                     onWordClick = { wordId -> navController.navigate("wordDetail/$wordId") },
-                    viewedSignsViewModel = viewedSignsViewModel
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -209,22 +200,11 @@ fun AppNavigation(
             // CATEGORIES – Pantalla de categorías
             // -------------------------------------------------------------
             composable(Screen.Categories.route) {
-                val userStats by userStatsViewModel.userStats.collectAsState()
-                val authToken by authViewModel.authToken.collectAsState()
-
-                // Refresh stats when returning to this screen
-                LaunchedEffect(Unit) {
-                    authToken?.let { token ->
-                        userStatsViewModel.refreshStats(token)
-                    }
-                }
-
                 CategoriesScreen(
-                    userStats = userStats,
                     onCategoryClick = { categoryId ->
                         navController.navigate(Screen.CategoryDetail.createRoute(categoryId))
                     },
-                    viewedSignsViewModel = viewedSignsViewModel
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -232,14 +212,11 @@ fun AppNavigation(
             // FAVORITES – Pantalla de favoritos
             // -------------------------------------------------------------
             composable(Screen.Favorites.route) {
-                val userStats by userStatsViewModel.userStats.collectAsState()
-
-
                 FavoritesScreen(
-                    userStats = userStats,
                     onWordClick = { wordId ->
                         navController.navigate(Screen.WordDetail.createRoute(wordId))
-                    }
+                    },
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -248,20 +225,9 @@ fun AppNavigation(
             // -------------------------------------------------------------
             composable(Screen.CategoryDetail.route) { backStackEntry ->
                 val categoryId = backStackEntry.arguments?.getString("categoryId") ?: return@composable
-                val userStats by userStatsViewModel.userStats.collectAsState()
-                val authToken by authViewModel.authToken.collectAsState()
-
-                // Refresh stats when returning to this screen
-                LaunchedEffect(Unit) {
-                    authToken?.let { token ->
-                        userStatsViewModel.refreshStats(token)
-                    }
-                }
 
                 CategoryDetailScreen(
                     categoryId = categoryId,
-                    userStats = userStats,
-                    authToken = authToken,
                     onWordClick = { wordId ->
                         navController.navigate(Screen.WordDetail.createRoute(wordId))
                     },
@@ -271,8 +237,7 @@ fun AppNavigation(
                     onBack = {
                         navController.popBackStack()
                     },
-                    userStatsViewModel = userStatsViewModel,
-                    viewedSignsViewModel = viewedSignsViewModel
+                    topBar = { com.req.software.amoxcalli_app.ui.components.layout.AppTopBar(userStatsViewModel) }
                 )
             }
 
@@ -290,7 +255,8 @@ fun AppNavigation(
                     categoryId = categoryId,
                     onCloseClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    userStatsViewModel = userStatsViewModel
                 )
             }
 

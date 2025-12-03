@@ -24,13 +24,14 @@ import com.req.software.amoxcalli_app.viewmodel.FavoritesViewModel
 
 @Composable
 fun FavoritesScreen(
-    userStats: UserStatsResponse?,
     onWordClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
     favoritesViewModel: FavoritesViewModel = viewModel()
 ) {
     val favorites by favoritesViewModel.favorites.collectAsState()
     val isLoading by favoritesViewModel.isLoading.collectAsState()
+
 
     // Load favorites when screen is shown (they load automatically in init, but refresh just in case)
     LaunchedEffect(Unit) {
@@ -41,28 +42,8 @@ fun FavoritesScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as other screens)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ThirdColor) // Using theme color - Dark navy blue
-                .padding(top = 12.dp, bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Extract values from UserStatsResponse
-            val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-            val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
-            val streak = userStats?.streak?.currentDays ?: 0
-            val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
-
-            StatsHeader(
-                coins = coins,
-                energy = energy,
-                streak = streak,
-                experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
-            )
-        }
+        // Centralized top bar
+        topBar()
 
         // Main content
         Column(

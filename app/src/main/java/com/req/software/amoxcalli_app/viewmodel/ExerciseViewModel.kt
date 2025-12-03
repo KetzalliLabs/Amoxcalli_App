@@ -14,6 +14,9 @@ import kotlinx.coroutines.launch
  * ViewModel for Exercise/Quiz screens
  * Handles exercise fetching, answer validation, and completion recording
  * Game limits: 6 correct answers to win, 3 wrong answers to lose
+ *
+ * IMPORTANT: Options are automatically shuffled when exercises are loaded
+ * to prevent the correct answer from always appearing in the same position.
  */
 class ExerciseViewModel : ViewModel() {
     private val exercisesService = RetrofitClient.exercisesService
@@ -103,11 +106,13 @@ class ExerciseViewModel : ViewModel() {
 
                 if (response.success && response.data.isNotEmpty()) {
                     val randomExercise = response.data.random()
-                    _currentExercise.value = randomExercise
+                    // Shuffle options to randomize correct answer position
+                    val shuffledExercise = randomExercise.copy(options = randomExercise.options.shuffled())
+                    _currentExercise.value = shuffledExercise
 
                     // Track category for progress saving
                     if (sessionCategoryId == null) {
-                        sessionCategoryId = randomExercise.categoryId
+                        sessionCategoryId = shuffledExercise.categoryId
                     }
 
                     startTime = System.currentTimeMillis()
@@ -131,8 +136,10 @@ class ExerciseViewModel : ViewModel() {
 
     /**
      * Check if selected answer is correct
+     * @param authToken Auth token for backend calls
+     * @param onCorrectAnswer Callback when answer is correct (for awarding XP)
      */
-    fun checkAnswer(authToken: String?) {
+    fun checkAnswer(authToken: String?, onCorrectAnswer: (() -> Unit)? = null) {
         val exercise = _currentExercise.value ?: return
         val selectedId = _selectedAnswerId.value ?: return
 
@@ -150,6 +157,8 @@ class ExerciseViewModel : ViewModel() {
             // Update counts
             if (isCorrect) {
                 _correctCount.value += 1
+                // Award XP for correct answer
+                onCorrectAnswer?.invoke()
             } else {
                 _wrongCount.value += 1
             }
@@ -168,7 +177,7 @@ class ExerciseViewModel : ViewModel() {
             _answerResult.value = AnswerResult(
                 isCorrect = isCorrect,
                 correctAnswerId = exercise.correctSignId,
-                message = if (isCorrect) "¡Correcto! +10 XP, +5 Monedas" else "Incorrecto"
+                message = if (isCorrect) "¡Correcto! +15 XP" else "Incorrecto"
             )
 
             // Check if session should end

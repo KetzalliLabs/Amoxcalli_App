@@ -46,28 +46,13 @@ fun HomeScreen(
     onPracticeClick: () -> Unit,
     onLibraryClick: () -> Unit,
     modifier: Modifier = Modifier,
-    localXP: Int? = null,  // Optional local XP override
-    notification: StatsNotificationState? = null  // Optional notification state
+    topBar: @Composable () -> Unit = {},
+    notification: StatsNotificationState? = null
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                Column(
-                    modifier = Modifier
-                        .background(ThirdColor)
-                        .padding(top = 15.dp, bottom = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    StatsHeader(
-                        coins = userStats.coins,
-                        energy = userStats.energy,
-                        streak = userStats.streak,
-                        experience = userStats.experience,
-                        medalsCount = medals.size,
-                        useLocalXP = localXP != null,
-                        localXP = localXP
-                    )
-                }
+                topBar()
             }
         ) { paddingValues ->
             Column(

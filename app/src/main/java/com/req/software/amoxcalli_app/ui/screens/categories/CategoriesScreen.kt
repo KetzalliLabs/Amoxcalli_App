@@ -30,9 +30,9 @@ import com.req.software.amoxcalli_app.viewmodel.CategoryViewModel
 
 @Composable
 fun CategoriesScreen(
-    userStats: UserStatsResponse?,
     onCategoryClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
     categoryViewModel: CategoryViewModel = viewModel(),
     viewedSignsViewModel: com.req.software.amoxcalli_app.viewmodel.ViewedSignsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
@@ -41,6 +41,7 @@ fun CategoriesScreen(
     val error by categoryViewModel.error.collectAsState()
     val categorySignsMap by categoryViewModel.categorySignsMap.collectAsState()
     val viewedSignIds by viewedSignsViewModel.viewedSignIds.collectAsState()
+
 
     // Preload signs for all categories to calculate progress
     LaunchedEffect(categories) {
@@ -53,28 +54,8 @@ fun CategoriesScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // Top header (same style as Library and Home)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ThirdColor) // Using theme color - Dark navy blue
-                .padding(top = 12.dp, bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Extract values from UserStatsResponse
-            val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-            val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 0
-            val streak = userStats?.streak?.currentDays ?: 0
-            val experience = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
-
-            StatsHeader(
-                coins = coins,
-                energy = energy,
-                streak = streak,
-                experience = experience,
-                medalsCount = userStats?.medals?.size ?: 0
-            )
-        }
+        // Centralized top bar
+        topBar()
 
         // Main content
         Column(

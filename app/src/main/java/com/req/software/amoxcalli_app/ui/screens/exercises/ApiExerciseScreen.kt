@@ -39,7 +39,8 @@ fun ApiExerciseScreen(
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
     categoryId: String? = null,
-    exerciseViewModel: ExerciseViewModel = viewModel()
+    exerciseViewModel: ExerciseViewModel = viewModel(),
+    userStatsViewModel: com.req.software.amoxcalli_app.viewmodel.UserStatsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val currentExercise by exerciseViewModel.currentExercise.collectAsState()
     val isLoading by exerciseViewModel.isLoading.collectAsState()
@@ -49,6 +50,12 @@ fun ApiExerciseScreen(
     val correctCount by exerciseViewModel.correctCount.collectAsState()
     val wrongCount by exerciseViewModel.wrongCount.collectAsState()
     val sessionState by exerciseViewModel.sessionState.collectAsState()
+
+    // Get reactive user stats for updated XP display
+    val currentUserStats by userStatsViewModel.userStats.collectAsState()
+
+    // Get local XP for real-time updates
+    val localXP by userStatsViewModel.localXP.collectAsState()
 
     // Load exercises when screen starts (filtered by category if provided)
     LaunchedEffect(categoryId) {
@@ -113,10 +120,11 @@ fun ApiExerciseScreen(
             currentExercise != null -> {
                 val exercise = currentExercise!!
 
-                // Extract user stats
-                val coins = userStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
-                val energy = userStats?.stats?.find { it.name == "energy" }?.currentValue ?: 20
-                val xp = userStats?.stats?.find { it.name == "experience_points" }?.currentValue ?: 0
+                // Extract user stats - use local XP for real-time updates
+                val coins = currentUserStats?.stats?.find { it.name == "coins" }?.currentValue ?: 0
+                val energy = currentUserStats?.stats?.find { it.name == "energy" }?.currentValue ?: 20
+                // Use local XP instead of API XP for instant updates
+                val xp = localXP
 
                 val mediaType = when {
                     !exercise.correctSign.videoUrl.isNullOrBlank() -> MediaType.VIDEO
@@ -188,7 +196,10 @@ fun ApiExerciseScreen(
                         },
                         onConfirmClick = {
                             if (answerResult == null) {
-                                exerciseViewModel.checkAnswer(authToken)
+                                exerciseViewModel.checkAnswer(authToken) {
+                                    // Award XP for correct answer
+                                    userStatsViewModel.awardCorrectAnswerXP()
+                                }
                             } else {
                                 if (categoryId != null) {
                                     exerciseViewModel.nextExercise()
@@ -201,26 +212,41 @@ fun ApiExerciseScreen(
                     )
                 }
 
-                // Show answer result overlay
+                // Show answer result overlay with improved visibility
                 answerResult?.let { result ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = 100.dp),
+                            .padding(bottom = 120.dp),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .padding(horizontal = 24.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (result.isCorrect)
+                                    Color(0xFF4CAF50)
+                                else
+                                    Color(0xFFF44336)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
-                            Text(
-                                text = result.message,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (result.isCorrect) Color(0xFF4CAF50) else Color(0xFFF44336)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = result.message,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
