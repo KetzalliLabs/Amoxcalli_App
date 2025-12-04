@@ -1,124 +1,173 @@
-# Amoxcalli — Tu casa de saber para LSM
+# Amoxcalli 📱
 
-> Inclusión que se transforma con tecnología. Hecha en México por Ketzalli Labs. 
+**App Android para aprender Lengua de Señas Mexicana (LSM)** mediante microlecciones interactivas, gamificación y soporte offline. Desarrollada por Ketzalli Labs.
 
-## ✨ Visión general
+## ¿Qué es Amoxcalli?
 
-Amoxcalli es una app móvil para aprender Lengua de Señas Mexicana (LSM) mediante microlecciones con video, práctica interactiva y evaluación formativa continua. Incorpora repetición espaciada, recuperación activa y motivación gamificada (XP, rachas, medallas y cacao como moneda blanda). También funciona **offline**, ofrece accesibilidad integral y adapta el contenido según el desempeño. 
+*Amoxcalli* (del náhuatl: "casa de libros" o "casa de saber") es una plataforma educativa móvil enfocada en **democratizar el acceso al aprendizaje de la Lengua de Señas Mexicana**. En México, más de 2.3 millones de personas tienen discapacidad auditiva, pero los recursos de calidad para aprender LSM son escasos, fragmentados y mayormente presenciales.
 
----
+**Nuestro objetivo:** Ofrecer una experiencia de aprendizaje estructurada, basada en evidencia pedagógica (repetición espaciada, retroalimentación inmediata) y accesible desde cualquier dispositivo Android, incluso sin conexión a internet.
 
-## 🎯 Objetivos del producto
-
-- **Cerrar brechas de acceso** a materiales de calidad y rutas guiadas para aprender LSM.
-- **Acompañar a docentes y familias** con progreso medible, detección de rezagos y recursos confiables.
-- **Operar bien con conectividad limitada**, manteniendo la motivación con metas y retos breves. 
+**Desarrollada por Ketzalli Labs** — Equipo #3 del Grupo 504 — como proyecto académico en la materia de Seguridad en Desarrollo de Software. Combina principios de Clean Architecture, seguridad by design y enfoque en accesibilidad universal (WCAG 2.2 AA).
 
 ---
 
-## 🧩 Funcionalidades clave
+## Stack Técnico
 
-### Diccionario y contenido
-- Diccionario por categorías con **videos de LSM** (controles de reproducción y velocidad).
-- **Búsqueda** por texto; marcar favoritas o para repaso. 
+**Frontend**
+- **Kotlin** + **Jetpack Compose** (Material 3)
+- Arquitectura **MVVM** con Clean Architecture
+- **Retrofit** + OkHttp para networking
+- **Room** para persistencia offline
+- **Coil** para carga de imágenes/videos
+- **Navigation Compose** para routing
 
-### Práctica y evaluación
-- **Quizzes** (opción múltiple, video, selección de seña correcta) con **retroalimentación inmediata**.
-- Registro de desempeño por módulo; **repetición espaciada** de errores. 
+**Backend & Auth**
+- REST API desplegada en **Railway**
+- **Firebase Auth** + Google Sign-In
+- Videos en **Cloudflare R2 CDN**
 
-### Gamificación y progreso
-- **XP** por lecciones/prácticas; **cacao** como moneda blanda para pistas y ejercicios extra.
-- **Medallas** (Jade, Obsidiana, Quetzal, etc.), rachas y niveles. 
-
-### Personalización y accesibilidad
-- **Modo offline** (descarga de unidades y sincronización posterior).
-- **Rutas personalizadas** según desempeño y **accesibilidad visual** (WCAG 2.2 AA, soporte lector de pantalla, contraste alto, opción de desactivar animaciones). 
-
-### Administración, analítica y reportes
-- Gestión de señas, videos, categorías y bancos de preguntas.
-- **Reportes** en PDF/Excel; métricas: accesos, videos más vistos, tasas de acierto, mapa de dominio, cohortes y alertas de rezago. 
+**Package:** `com.req.software.amoxcalli_app`
 
 ---
 
-## 👥 Casos de uso (resumen)
+## Características Principales
 
-- **Completar lección con video LSM**: precarga ejercicios, respuesta con feedback instantáneo, avance y registro de progreso, asignación de XP/racha.
-- **Registro e inicio de sesión**: email/federado, verificación, meta diaria y nivel inicial.
-- **Descarga para uso offline y sincronización**: descarga de unidades, trabajo sin red y consolidación de progreso al reconectarse. 
+### Aprendizaje Interactivo
+- Diccionario LSM con **videos HD** (720p+) categorizados y búsqueda
+- Ejercicios adaptativos: Video→Texto, Imagen→Texto, Palabra→Seña
+- Sistema de **repetición espaciada** para reforzar errores
+- Retroalimentación inmediata con explicaciones
 
----
+### Gamificación 🎮
+- **XP** y niveles de progreso
+- **Cacao** (moneda blanda) para pistas y contenido extra
+- **Medallas** (Jade, Obsidiana, Quetzal) y rachas diarias
+- **Estelas**: certificaciones de dominio por módulo
 
-## 📐 Requerimientos (extracto)
+### Modo Offline
+- Descarga de unidades completas
+- Sincronización automática con estrategia **LWW** (Last-Write-Wins)
+- Caché inteligente de próximos ejercicios
 
-### Funcionales
-- Diccionario por categorías con video; búsqueda y marcadores.
-- Quizzes con feedback inmediato; registro de desempeño y repetición espaciada.
-- Gamificación con XP, **cacao**, medallas y rachas; progreso por módulo/sesión.
-- Modo **offline**; adaptación de contenido; accesibilidad.
-- Panel de administración; analítica y reportes; autenticación segura y recuperación de cuenta. 
-
-### No funcionales
-- **Inicio < 3 s** (gama media) y **pantallas clave < 500 ms** post‑carga; latencia de acciones críticas < 300 ms en Wi‑Fi/5G.
-- Disponibilidad backend **> 99.9%**; sesiones sin crash **> 99.5%**.
-- **WCAG 2.2 AA**; videos 720p+ 24–60 fps; caché de próximos ejercicios.
-- Seguridad y privacidad: cifrado E2E en tránsito/reposo, mínima recolección con consentimiento y panel de privacidad, gestión de secretos, rate-limits y protección anti‑abuso; controles parentales y cumplimiento para menores. 
-
----
-
-## 🏗️ Arquitectura y diseño (alto nivel)
-
-- **App móvil** con módulos de lecciones, diccionario, práctica/Estelas y perfil/progreso.
-- **Sincronización** de progreso y descargas para **modo offline** (LWW + reintentos).
-- **Panel de administración** y **servicios de analítica** para monitoreo de uso/aprendizaje. 
-
-> *Estelas* certifican dominio por módulo con reactivos adaptativos e insights de errores frecuentes y rutas de repaso. 
+### Accesibilidad
+- Cumplimiento **WCAG 2.2 AA**
+- Soporte para lectores de pantalla
+- Alto contraste y control de animaciones
 
 ---
 
-## 🔐 Seguridad y cumplimiento
+## Arquitectura
 
-- Autenticación segura, recuperación de cuenta y protección de datos personales y de menores.
-- Políticas de privacidad con consentimiento explícito, controles de notificaciones y **controles parentales**. 
+```
+app/src/main/java/com/req/software/amoxcalli_app/
+├── ui/                    # Composables (screens, components, theme)
+├── viewmodel/             # State management (StateFlow)
+├── domain/                # Models & use cases
+├── data/                  # Repositories & DTOs
+├── service/               # Retrofit interfaces
+├── network/               # HTTP clients
+└── config/                # API & Firebase config
+```
 
----
+**Flujo de datos:**
+```
+UI → ViewModel → Repository → Service → Backend API
+      ↓ StateFlow
+    UI actualiza
+```
 
-## 🧪 Pruebas y despliegue
-
-- Pruebas de rendimiento (render, latencia UI), estabilidad (tasa de crash), accesibilidad (WCAG), reproducción multimedia y **offline/replicación**.
-- Observabilidad/analítica para métricas de adopción y aprendizaje; despliegue con CI/CD y monitoreo SLO/SLA. 
-
----
-
-## 🛣️ Roadmap (Sprint 1 → siguientes)
-
-- Consolidar MVP de lecciones + diccionario + quizzes con feedback.
-- Implementar rachas/XP/medallas/cacao y primeras **Estelas**.
-- Offline (descarga/sync), panel de administración y reportes base.
-- Endurecer privacidad, controles parentales y anti‑abuso. 
-
----
-
-## 🤝 Contribuir
-
-1. Crear rama a partir de `main` y seguir la guía de estilo/linters.
-2. Agregar pruebas y actualizar documentación relevante.
-3. Abrir Pull Request con descripción y evidencia (capturas/metrics). 
+**Navegación:**
+- Autenticación (Login) → App principal (Bottom Nav)
+- 5 secciones: Home, Learn, Library, Quiz, Profile
 
 ---
 
-## 🏷️ Créditos y equipo
+## Comandos de Desarrollo
 
-Equipo #3 (Grupo 504):
-- **Santiago Quintana Moreno** — Scrum Master; Senior Full‑Stack; QA/Calidad
-- **Alfredo Luce Morales** — Product Owner; UX Research; Operación de Contenido LSM
-- **Ernesto De Luna Quintero** — Backend; Seguridad/Privacidad; Cumplimiento de Datos
-- **Israel Booz Rodríguez Zavala** — Mobile Frontend; Pipeline de Media/Cámara; Accesibilidad
-- **Emilio Salas Porras** — DevOps & SRE; Analítica/Datos; Observabilidad y CI/CD 
+### Build
+```bash
+./gradlew clean build           # Compilación completa
+./gradlew assembleDebug         # APK debug
+./gradlew installDebug          # Instalar en dispositivo
+```
+
+### Testing
+```bash
+./gradlew test                  # Unit tests
+./gradlew connectedAndroidTest  # Instrumented tests
+./gradlew lintDebug             # Análisis estático
+```
+
+### Debug
+```bash
+adb logcat | grep -i "amoxcalli"  # Filtrar logs
+adb shell pm clear com.req.software.amoxcalli_app  # Limpiar datos
+```
 
 ---
 
-## 📚 Fuentes base
+## Configuración
 
-- **EQ3_AmoxcalliApp_Sprint1** — Documento de requerimientos, casos de uso, NFRs, riesgos, diseño y roles. 
-- **KetzalliLabs Proposal: Amoxcalli** — Propuesta de producto, principios pedagógicos, Estelas, gamificación y diferenciadores. 
+### API Backend
+Actualizar `config/ApiConfig.kt`:
+```kotlin
+const val BASE_URL = "https://ketzallidbapi-production.up.railway.app/api/"
+```
 
+Para desarrollo local:
+- **Emulador:** `http://10.0.2.2:PORT/api/`
+- **Dispositivo físico:** `http://<TU_IP_LOCAL>:PORT/api/`
+
+### Firebase
+1. Descargar `google-services.json` desde Firebase Console
+2. Colocar en `app/google-services.json`
+3. Actualizar `WEB_CLIENT_ID` en `config/FirebaseConfig.kt`
+
+---
+
+## Requerimientos de Performance
+
+- **Tiempo de inicio:** < 3s (dispositivos gama media)
+- **Carga de pantallas:** < 500ms post-carga inicial
+- **Latencia de acciones:** < 300ms en Wi-Fi/5G
+- **Disponibilidad backend:** > 99.9%
+- **Sesiones sin crash:** > 99.5%
+
+---
+
+## Seguridad 🔐
+
+- Cifrado **E2E** en tránsito (HTTPS) y reposo
+- Autenticación mediante **Firebase ID tokens** (Bearer)
+- Rate limiting y protección anti-abuso en backend
+- Gestión segura de secretos (no incluidos en control de versiones)
+- Cumplimiento de privacidad para menores
+
+---
+
+## Equipo — Ketzalli Labs
+
+**Equipo #3 (Grupo 504)**
+
+| Rol | Responsable |
+|-----|------------|
+| Scrum Master & QA | Santiago Quintana Moreno |
+| Product Owner & UX | Alfredo Luce Morales |
+| Backend & Seguridad | Ernesto De Luna Quintero |
+| Mobile & Accesibilidad | Israel Booz Rodríguez Zavala |
+| DevOps & Analítica | Emilio Salas Porras |
+
+---
+
+## Contribuir
+
+1. Crear rama desde `Development`
+2. Seguir convenciones de Kotlin y Compose
+3. Incluir tests y actualizar documentación
+4. PR con descripción detallada y evidencia
+
+
+---
+
+**Licencia:** Proyecto académico — Ketzalli Labs © 2024
