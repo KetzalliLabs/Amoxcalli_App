@@ -1,3 +1,5 @@
+@file:androidx.media3.common.util.UnstableApi
+
 package com.req.software.amoxcalli_app.ui.screens.library
 
 import androidx.compose.foundation.background
