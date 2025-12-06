@@ -1,0 +1,240 @@
+================================================================================
+                    AMOXCALLI - INSTALLATION GUIDE
+        Learn Mexican Sign Language (LSM) - Lengua de Señas Mexicana
+================================================================================
+
+VERSION: 1.0
+DEVELOPER: Ketzalli Labs - Team #3
+
+================================================================================
+SYSTEM REQUIREMENTS
+================================================================================
+
+Minimum Requirements:
+- Android 7.0 (Nougat, API Level 24) or higher
+- 100 MB free storage space
+- Internet connection (for initial setup and content download)
+- Google account (for sign-in)
+
+Recommended Requirements:
+- Android 10.0 or higher
+- 200 MB free storage space
+- Stable Wi-Fi connection for video content
+- 2 GB RAM minimum
+
+================================================================================
+INSTALLATION METHODS
+================================================================================
+
+METHOD 1: Install from APK File
+
+1. Download the Amoxcalli APK file to your Android device
+   - Transfer the APK to your device if downloaded on computer
+
+2. Enable installation from unknown sources:
+   - Go to Settings > Security (or Privacy)
+   - Enable "Install unknown apps" or "Unknown sources"
+   - Select your file manager/browser and allow installation
+
+3. Locate the APK file:
+   - Open your file manager
+   - Navigate to Downloads folder
+   - Tap on "amoxcalli-app.apk"
+
+4. Install the application:
+   - Tap "Install" when prompted
+   - Wait for installation to complete
+   - Tap "Open" to launch the app
+
+5. (Optional) Disable unknown sources:
+   - Return to Settings > Security
+   - Disable "Install unknown apps" for security
+
+
+METHOD 2: Install from Google Play Store
+
+1. Open Google Play Store on your Android device
+2. Search for "Amoxcalli LSM"
+3. Tap "Install"
+4. Wait for download and installation to complete
+5. Tap "Open" to launch the app
+
+
+================================================================================
+FIRST-TIME SETUP
+================================================================================
+
+1. Launch Amoxcalli:
+   - Tap the app icon from your home screen or app drawer
+
+2. Sign in with Google:
+   - Tap "Continuar con Google" (Continue with Google)
+   - Select your Google account
+   - Grant permissions when requested:
+     * Account information access
+     * Network access
+
+3. Welcome screen:
+   - Read the brief introduction to LSM learning
+   - Tap "Comenzar" (Start) to proceed
+
+4. Initial data sync:
+   - Wait for your user profile to load
+   - Learning units and content will download
+   - This may take 30-60 seconds on first launch
+
+5. Home screen:
+   - You'll see your learning dashboard
+   - Your account is now ready to use!
+
+
+================================================================================
+PERMISSIONS REQUIRED
+================================================================================
+
+The app requires the following permissions:
+
+REQUIRED:
+- Internet Access: Download learning content and sync progress
+- Network State: Check connection status for offline mode
+
+OPTIONAL:
+- Storage: Cache videos for offline viewing
+- Notifications: Daily reminders and streak notifications
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Installation Issues:
+--------------------
+
+Problem: "App not installed" error
+Solution:
+  - Ensure you have enough storage space (100MB+)
+  - Try uninstalling any previous version
+  - Clear cache: Settings > Apps > Amoxcalli > Clear Cache
+
+Problem: Installation blocked by Play Protect
+Solution:
+  - Tap "More details" in the warning
+  - Select "Install anyway"
+  - Note: Official releases are safe
+
+Problem: APK file won't open
+Solution:
+  - Verify the APK file is not corrupted (re-download if needed)
+  - Ensure you're using Android 7.0 or higher
+  - Try a different file manager app
+
+
+First Launch Issues:
+--------------------
+
+Problem: Stuck on loading screen
+Solution:
+  - Check your internet connection
+  - Close and restart the app
+  - Clear app data: Settings > Apps > Amoxcalli > Clear Data
+
+Problem: Google Sign-In fails
+Solution:
+  - Verify you have Google Play Services installed
+  - Check that your Google account is active
+  - Ensure date/time settings are correct
+  - Try signing in with a different Google account
+
+Problem: Videos won't load
+Solution:
+  - Verify stable internet connection (Wi-Fi recommended)
+  - Check if your network blocks video CDN (Cloudflare R2)
+  - Wait a few moments and try again
+  - Restart the app
+
+Problem: App crashes on startup
+Solution:
+  - Restart your device
+  - Ensure Android OS is updated
+  - Uninstall and reinstall the app
+  - Check minimum requirements (Android 7.0+)
+
+
+Network Issues:
+---------------
+
+Problem: Content won't download
+Solution:
+  - Switch between Wi-Fi and mobile data
+  - Disable VPN if active
+  - Check firewall settings
+  - Ensure backend server is accessible:
+    https://ketzallidbapi-production.up.railway.app/api/
+
+
+================================================================================
+UPDATING THE APP
+================================================================================
+
+APK Updates:
+1. Download the latest APK version
+2. Install over the existing app (data will be preserved)
+3. Your progress and settings will remain intact
+
+Google Play Updates:
+1. Open Google Play Store
+2. Go to "My apps & games"
+3. Find Amoxcalli and tap "Update"
+
+
+================================================================================
+UNINSTALLATION
+================================================================================
+
+To uninstall Amoxcalli:
+
+1. Go to Settings > Apps > Amoxcalli
+2. Tap "Uninstall"
+3. Confirm uninstallation
+
+Note: Your learning progress is saved on the server. If you reinstall and
+sign in with the same Google account, your progress will be restored.
+
+
+================================================================================
+SUPPORT & CONTACT
+================================================================================
+
+For technical support or questions:
+- GitHub Issues: https://github.com/ketzalli-labs/amoxcalli-app
+- Project Team: Ketzalli Labs - Grupo 504
+
+For backend/server issues:
+- Backend Status: https://ketzallidbapi-production.up.railway.app/api/health
+
+
+================================================================================
+PRIVACY & DATA
+================================================================================
+
+- Your learning data is stored securely on our servers
+- Google Sign-In is used for authentication only
+- No personal data is shared with third parties
+- All communication is encrypted (HTTPS)
+- You can delete your account from Profile > Settings
+
+
+================================================================================
+POST-INSTALLATION
+================================================================================
+
+After successful installation:
+1. Complete your first lesson to familiarize yourself with the app
+2. Enable notifications for daily learning reminders
+3. Explore the Library to see available LSM signs
+4. Set a daily goal in your Profile settings
+5. Join the learning path and start your LSM journey!
+
+¡Bienvenido a Amoxcalli! Welcome to your LSM learning adventure!
+
+================================================================================

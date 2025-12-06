@@ -40,6 +40,7 @@ enum class MediaType {
     NONE
 }
 
+@OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 fun MediaDisplay(
     mediaType: MediaType,

@@ -1,0 +1,573 @@
+================================================================================
+                        AMOXCALLI - USER MANUAL
+          Complete Guide to Learning Mexican Sign Language (LSM)
+================================================================================
+
+VERSION: 1.0
+DEVELOPER: Ketzalli Labs - Team #3
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Getting Started
+2. Main Navigation & Interface
+3. Learning Path (Ruta de Aprendizaje)
+4. Interactive Exercises & Games
+5. Library & Dictionary
+6. Gamification System
+7. Profile & Settings
+8. Tips & Best Practices
+9. Troubleshooting
+10. Frequently Asked Questions
+
+
+================================================================================
+1. GETTING STARTED
+================================================================================
+
+After installation and sign-in, you'll see the Home screen with:
+- Your current level and XP (experience points)
+- Daily streak counter
+- Learning recommendations
+- Quick access to lessons and practice
+
+Your Learning Journey:
+- Start with Unit 1: Basic signs and alphabet
+- Progress through structured lessons
+- Practice with interactive exercises
+- Earn rewards and track your progress
+- Build vocabulary with the Library
+
+
+================================================================================
+2. MAIN NAVIGATION & INTERFACE
+================================================================================
+
+Bottom Navigation Bar (5 Main Sections):
+-----------------------------------------
+
+🏠 HOME (Inicio)
+- Dashboard with learning stats
+- Current streak and XP
+- Recommended lessons
+- Quick practice button
+- Recent achievements
+
+📚 LEARN (Aprender)
+- Structured learning path
+- Lesson units organized by difficulty
+- Progress tracking per unit
+- New content unlocks as you advance
+
+📖 LIBRARY (Biblioteca)
+- Dictionary of LSM signs
+- Search by word or category
+- Video demonstrations for each sign
+- Alphabet reference
+- Save favorites
+
+🎮 QUIZ (Práctica)
+- Random practice exercises
+- Review learned signs
+- Mixed difficulty levels
+- Earn bonus XP and cacao
+
+👤 PROFILE (Perfil)
+- User statistics
+- Badges and achievements (medallas)
+- Learning history
+- Settings and preferences
+- Account management
+
+
+================================================================================
+3. LEARNING PATH (Ruta de Aprendizaje)
+================================================================================
+
+Structure:
+The learning content is organized into progressive units:
+- Unit 1: Alphabet and Basic Signs
+- Unit 2: Common Phrases
+- Unit 3: Family and Relationships
+- Unit 4: Daily Activities
+- Unit 5: Emotions and Feelings
+- Unit 6: Numbers and Time
+- (Additional units unlock as you progress)
+
+Lesson Types:
+📹 VIDEO LESSONS (Micro-lecciones)
+- Short 2-5 minute video tutorials
+- Introduction to new signs
+- Cultural context and usage tips
+- Repeat and replay as needed
+
+✏️ PRACTICE EXERCISES
+- Immediate application of new signs
+- Multiple choice questions
+- Video-to-text matching
+- Image recognition
+
+🏆 UNIT REVIEW
+- Comprehensive assessment
+- Tests all signs from the unit
+- Must pass to unlock next unit
+- Earn Estelas (certifications)
+
+How to Use:
+1. Tap "Aprender" in bottom navigation
+2. Select the first available unit
+3. Complete lessons in sequential order
+4. Practice exercises appear after video lessons
+5. Complete unit review to advance
+6. Locked units display prerequisites
+
+
+================================================================================
+4. INTERACTIVE EXERCISES & GAMES
+================================================================================
+
+Exercise Types:
+🎥 VIDEO TO TEXT (Video → Palabra)
+- Watch an LSM sign performed in video
+- Select the matching word from 4 options
+- Tests comprehension of signs
+- Most common exercise type
+
+Example:
+  [Video shows sign for "HELLO"]
+  Options: HELLO / GOODBYE / THANK YOU / PLEASE
+  → Select "HELLO"
+
+
+🖼️ IMAGE TO TEXT (Imagen → Palabra)
+- View a static image of a sign
+- Choose the correct word
+- Faster-paced than video exercises
+- Tests sign recognition
+
+Example:
+  [Image shows hand forming letter "A"]
+  Options: A / B / C / D
+  → Select "A"
+
+
+✍️ WORD TO SIGN (Palabra → Seña)
+- Read a word in Spanish
+- Select the correct LSM video/image
+- Tests production knowledge
+- Prepares you to use signs
+
+Example:
+  Word: "GRACIAS" (Thank you)
+  [4 video options showing different signs]
+  → Select the video showing "GRACIAS"
+
+
+Exercise Controls:
+During video exercises:
+- 🎬 PLAY/PAUSE: Tap video to control playback
+- 🐌 SLOW MOTION: Tap icon to play at 0.5x speed
+- 🔄 LOOP: Video repeats automatically
+- ⏮️ REPLAY: Watch again as many times as needed
+
+Answering Questions:
+- Tap your answer choice
+- Immediate feedback (correct/incorrect)
+- Correct answer highlighted if wrong
+- XP awarded for correct answers
+- Tap "Continuar" to proceed
+
+Hints & Help:
+- 💡 Use cacao (in-app currency) for hints
+- Hints reveal one wrong answer
+- Limited hints per session
+
+
+================================================================================
+5. LIBRARY & DICTIONARY
+================================================================================
+
+The Library is your LSM reference guide with 100+ signs.
+Browsing:
+1. Tap "Biblioteca" in bottom navigation
+2. Browse by category:
+   - Alfabeto (Alphabet: A-Z)
+   - Números (Numbers: 0-100)
+   - Saludos (Greetings)
+   - Familia (Family)
+   - Emociones (Emotions)
+   - Comida (Food)
+   - And more...
+
+3. Tap any category to view all signs
+4. Scroll through the list
+
+Searching:
+1. Use search bar at top of Library
+2. Type Spanish word (e.g., "hola", "mamá")
+3. Results appear instantly
+4. Tap sign to view details
+
+Sign Details:
+Each sign entry shows:
+- Spanish word
+- High-quality video demonstration
+- Video playback controls (play, slow-mo, loop)
+- Category/context
+- Usage examples (if available)
+
+Tips:
+- Add frequently used signs to favorites (⭐)
+- Review alphabet daily for finger spelling practice
+- Use Library to prepare for quizzes
+
+
+================================================================================
+6. GAMIFICATION SYSTEM
+================================================================================
+
+Progression Metrics:
+⭐ XP (Experience Points)
+- Earned from lessons and exercises
+- +10 XP per correct exercise answer
+- +50 XP for completing a lesson
+- +100 XP for completing a unit
+- Determines your level
+
+🔥 STREAKS (Rachas)
+- Daily consecutive login/practice days
+- 1 day = complete at least 1 exercise
+- Breaks if you skip a day
+- Bonus rewards at 7, 14, 30, 60, 90 days
+
+📊 LEVELS (Niveles)
+- Level up every 100 XP
+- Higher levels unlock advanced content
+- Display on profile and leaderboards
+
+🏅 BADGES (Medallas)
+Special achievements for milestones:
+- 💎 Jade: Complete first unit
+- 🖤 Obsidiana: 7-day streak
+- 🦅 Quetzal: Reach level 10
+- 🌟 Estrella: Master 50 signs
+- 👑 Corona: Complete all units
+
+How to Maximize Progress:
+1. Practice daily to maintain streaks
+2. Complete all exercises in a lesson (don't skip)
+3. Review difficult signs in Library
+4. Take quizzes to earn bonus XP
+5. Aim for 10-15 minutes daily vs. long sporadic sessions
+6. Check Home screen for recommended next steps
+
+
+================================================================================
+7. PROFILE & SETTINGS
+================================================================================
+
+Profile Screen (Tap "Perfil"):
+User Stats:
+- Total XP and current level
+- Days active and current streak
+- Total cacao balance
+- Number of signs mastered
+- Units completed
+
+Badges & Achievements:
+- View all earned medallas
+- See locked badges with unlock requirements
+- Estelas earned from unit completions
+
+Learning History:
+- Calendar view of practice days
+- Daily XP earned
+- Lesson completion timeline
+
+Settings & Preferences:
+🔔 NOTIFICATIONS
+- Daily reminder time (default: 9:00 AM)
+- Streak reminder (if about to break)
+- New content alerts
+- Enable/disable push notifications
+
+🎨 APPEARANCE
+- Theme selection (currently light mode)
+- Accessibility options
+
+🔊 AUDIO & VIDEO
+- Video quality (Auto/720p/480p)
+- Autoplay lessons
+- Playback speed preference
+
+📥 OFFLINE MODE
+- Download units for offline use
+- Manage downloaded content
+- Storage space overview
+
+🔐 ACCOUNT
+- View connected Google account
+- Email and display name
+- Data export (learning history)
+- Delete account (permanent)
+
+⚙️ ADVANCED
+- Clear cache
+- Reset tutorial
+- Report a problem
+- App version info
+
+
+================================================================================
+8. TIPS & BEST PRACTICES
+================================================================================
+
+Learning Strategies:
+--------------------
+✓ Practice daily, even if only 5-10 minutes
+✓ Use slow-motion feature to study hand shapes closely
+✓ Mimic signs physically while watching (muscle memory)
+✓ Review previously learned signs regularly (spaced repetition)
+✓ Focus on understanding hand position, movement, and facial expression
+✓ Practice in front of a mirror when possible
+✓ Use Library to preview upcoming lessons
+✓ Don't rush - mastery over speed
+
+Effective Study Sessions:
+--------------------------
+1. Start with 2-3 lessons (10-15 min)
+2. Take a quick break
+3. Do 5-10 practice exercises
+4. Review difficult signs in Library
+5. End with a quiz for bonus XP
+
+Maintaining Streaks:
+--------------------
+- Set a daily reminder notification
+- Do at least 1 exercise before bed
+- Use offline mode when traveling
+- Keep app installed and visible on home screen
+
+Video Learning Tips:
+--------------------
+- Watch each sign 3-5 times before answering
+- Pay attention to:
+  * Hand shape (finger positions)
+  * Movement direction and speed
+  * Location (near face, chest, etc.)
+  * Facial expressions (critical in LSM!)
+- Use slow-motion for complex signs
+- Replay as many times as needed - no penalty
+
+Troubleshooting Difficult Signs:
+---------------------------------
+1. Watch video in slow motion (🐌)
+2. Pause and observe hand position
+3. Check Library for additional context
+4. Practice the physical motion yourself
+5. Review similar signs to note differences
+6. Revisit in next practice session
+
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+Common Issues & Solutions:
+--------------------------
+
+Problem: Videos won't play or buffer constantly
+Solution:
+  - Check internet connection strength
+  - Switch to Wi-Fi if using mobile data
+  - Lower video quality: Profile > Settings > Video Quality > 480p
+  - Clear cache: Profile > Settings > Clear Cache
+  - Close and restart app
+
+Problem: Progress not saving
+Solution:
+  - Ensure you're connected to internet
+  - Check that you're signed in (Profile shows your name)
+  - Wait a few seconds after completing lesson
+  - Restart app to force sync
+
+Problem: Streak not counting
+Solution:
+  - Complete at least 1 exercise (not just viewing)
+  - Ensure date/time on device is correct
+  - Complete exercise before midnight in your timezone
+  - Check Profile to verify streak count
+
+Problem: Can't unlock next unit
+Solution:
+  - Complete all lessons in current unit
+  - Pass the unit review with 70% or higher
+  - Ensure progress has synced (check internet)
+  - Restart app and check again
+
+Problem: App running slow
+Solution:
+  - Close background apps
+  - Clear app cache
+  - Ensure 100MB+ free storage
+  - Restart device
+  - Update to latest app version
+
+Problem: Exercise answers not registering
+Solution:
+  - Tap answer clearly and wait 1 second
+  - Ensure full video has loaded before answering
+  - Restart app if issue persists
+
+Problem: Google Sign-In fails
+Solution:
+  - Check internet connection
+  - Ensure Google Play Services is updated
+  - Try different Google account
+  - Sign out from app and sign back in
+
+
+================================================================================
+10. FREQUENTLY ASKED QUESTIONS
+================================================================================
+
+Q: Is internet required to use Amoxcalli?
+A: Internet is required for initial setup and downloading content. You can
+   download units for offline use in Settings > Offline Mode.
+
+Q: How long does it take to complete all units?
+A: With daily practice (15-20 min/day), most users complete the core
+   curriculum in 3-4 months. Learning pace varies individually.
+
+Q: Can I skip lessons I already know?
+A: Each unit has a placement quiz. Pass it to skip directly to the review.
+   However, we recommend completing all lessons for comprehensive learning.
+
+Q: What happens if I miss a day and break my streak?
+A: Your streak resets to 0, but your XP, level, and learning progress remain.
+   Start a new streak the next day you practice.
+
+Q: Can I use Amoxcalli on multiple devices?
+A: Yes! Sign in with the same Google account on any device. Your progress
+   syncs automatically across devices.
+
+Q: Are the signs standardized LSM?
+A: Yes, all signs follow LSM (Lengua de Señas Mexicana) standards used in
+   Mexico. Regional variations exist but core signs are widely recognized.
+
+Q: Can I download all content at once?
+A: You can download units individually. Go to Profile > Settings > Offline
+   Mode and select units to download. Each unit is approximately 20-50 MB.
+
+Q: How do I report incorrect content or bugs?
+A: Go to Profile > Settings > Report a Problem. Describe the issue and
+   include the lesson/sign name if applicable.
+
+Q: Will more content be added?
+A: Yes! New units, signs, and features are added regularly. Check the Home
+   screen for announcements.
+
+Q: Can I reset my progress and start over?
+A: Yes, go to Profile > Settings > Advanced > Reset Progress. Note: This
+   permanently deletes all learning data and cannot be undone.
+
+Q: What do I do after completing all units?
+A: Continue practicing with daily quizzes, explore advanced Library content,
+   and help others learn LSM! More advanced units coming soon.
+
+Q: How accurate do my sign movements need to be?
+A: The app tests comprehension (recognizing signs) not production (performing
+   signs). Practice physical signs separately with mirrors or partners.
+
+
+================================================================================
+BEST PRACTICES SUMMARY
+================================================================================
+
+Daily Routine (10-15 minutes):
+1. Open app and check Home screen
+2. Complete 2-3 new lessons OR 10-15 practice exercises
+3. Review 5 signs from Library
+4. Do 1 quiz for bonus XP
+5. Check progress and achievements
+
+Weekly Goals:
+- Complete at least 1 full unit
+- Maintain 7-day streak
+- Master 10-20 new signs
+- Review all previously learned signs
+
+Monthly Milestones:
+- Complete 3-4 units
+- Achieve new badge/medal
+- Reach next level milestone
+- Practice with real LSM users if possible
+
+
+================================================================================
+LEARNING PHILOSOPHY
+================================================================================
+
+Amoxcalli uses proven language learning techniques:
+- Spaced Repetition: Review signs at optimal intervals
+- Active Recall: Test yourself before seeing answers
+- Microlearning: Short, focused lessons for better retention
+- Gamification: Stay motivated with rewards and progress tracking
+- Visual Learning: Video demonstrations for accurate sign learning
+- Immediate Feedback: Know instantly if your answer is correct
+
+Remember: Language learning is a marathon, not a sprint. Consistency beats
+intensity. 10 minutes daily is better than 2 hours once a week.
+
+
+================================================================================
+ACCESSIBILITY
+================================================================================
+
+Amoxcalli is designed for all learners:
+- Large, clear video playback
+- High-contrast UI for visibility
+- Slow-motion video option
+- Repeat videos unlimited times
+- Simple, intuitive navigation
+- No audio required (purely visual learning)
+- Adjustable text sizes (device settings)
+
+
+================================================================================
+SUPPORT & COMMUNITY
+================================================================================
+
+Need Help?
+- In-app: Profile > Settings > Report a Problem
+- GitHub: https://github.com/ketzalli-labs/amoxcalli-app/issues
+- Email: Contact through project repository
+
+Share Your Progress:
+- Share achievements on social media
+- Encourage others to learn LSM
+- Practice with friends learning together
+
+
+================================================================================
+CLOSING NOTES
+================================================================================
+
+¡Felicidades! You now have everything you need to master Mexican Sign Language
+with Amoxcalli. Remember:
+
+✓ Practice daily for best results
+✓ Don't be afraid to repeat lessons
+✓ Physical practice enhances learning
+✓ Celebrate small victories
+✓ Stay curious and enjoy the journey
+
+Language learning opens doors to new communities and cultures. LSM connects
+you to the Deaf community in Mexico and enriches your communication skills.
+
+¡Buena suerte en tu viaje de aprendizaje! Good luck on your learning journey!
+
+================================================================================
+                            END OF USER MANUAL
+================================================================================
